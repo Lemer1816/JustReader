@@ -7,6 +7,7 @@
 //
 
 #import "AppDelegate.h"
+#import "HomePageViewController.h"
 
 @interface AppDelegate ()
 
@@ -14,9 +15,18 @@
 
 @implementation AppDelegate
 
+-(UIWindow *)window{
+    if (_window == nil) {
+        _window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+        [_window makeKeyAndVisible];
+    }
+    return _window;
+}
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    // Override point for customization after application launch.
+    self.window.rootViewController = [[HomePageViewController alloc] init];
+    
+    
     return YES;
 }
 

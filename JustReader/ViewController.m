@@ -7,6 +7,7 @@
 //
 
 #import "ViewController.h"
+#import "Network.h"
 
 @interface ViewController ()
 
@@ -16,7 +17,31 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
+    [[Network sharedNetwork] getBookListWithKeywords:@"红尘" startNumber:0 limitNumber:10 successBlock:^(id responseBody) {
+        NSLog(@"responseBody: %@", responseBody);
+    } failureBlock:^(NSError *error) {
+        NSLog(@"error: %@", error);
+    }];
+    [[Network sharedNetwork] getBookDetailWithBookId:@"57206c3539a913ad65d35c7b" successBlock:^(id responseBody) {
+        NSLog(@"responseBody: %@", responseBody);
+    } failureBlock:^(NSError *error) {
+        NSLog(@"error: %@", error);
+    }];
+    [[Network sharedNetwork] getChapterListWithBookId:@"577b477dbd86a4bd3f8bf1b2" successBlock:^(id responseBody) {
+        NSLog(@"responseBody: %@", responseBody);
+    } failureBlock:^(NSError *error) {
+        NSLog(@"error: %@", error);
+    }];
+    [[Network sharedNetwork] getAutoCompleteWithKeywords:@"红尘" successBlock:^(id responseBody) {
+        NSLog(@"responseBody: %@", responseBody);
+    } failureBlock:^(NSError *error) {
+        NSLog(@"error: %@", error);
+    }];
+    [[Network sharedNetwork] getChapterDetailWithChapterLink:@"http://www.biquge.la/book/16431/6652065.html" successBlock:^(id responseBody) {
+        NSLog(@"responseBody: %@", responseBody);
+    } failureBlock:^(NSError *error) {
+        NSLog(@"error: %@", error);
+    }];
 }
 
 
