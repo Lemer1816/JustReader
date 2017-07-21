@@ -15,7 +15,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *bookNameLb;
 /** 作者名 */
 @property (weak, nonatomic) IBOutlet UILabel *authorLb;
-/** 字数 */
-@property (weak, nonatomic) IBOutlet UILabel *wordCountLb;
+/** 简介 */
+@property (weak, nonatomic) IBOutlet UILabel *shortIntroductionLb;
 
 @end

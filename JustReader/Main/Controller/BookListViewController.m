@@ -36,12 +36,12 @@
     [cell.coverIV sd_setImageWithURL:[NSURL URLWithString:[[model.cover stringByRemovingPercentEncoding] substringFromIndex:7]] placeholderImage:[UIImage imageNamed:@""]];
     NSLog(@"%@", [model.cover stringByRemovingPercentEncoding]);
     cell.bookNameLb.text = model.title;
-    cell.authorLb.text = model.author;
-    cell.wordCountLb.text = @(model.wordCount).stringValue;
+    cell.authorLb.text = [NSString stringWithFormat:@"作者: %@", model.author];
+    cell.shortIntroductionLb.text = model.shortIntro;
     return cell;
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
-    return 150;
+    return 120;
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
     return 0.01;
