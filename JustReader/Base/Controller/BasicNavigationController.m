@@ -16,7 +16,11 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
+    self.navigationBar.translucent = NO;
+    self.navigationBar.barTintColor = NAVIGATION_BACKGROUNDCOLOR;
+    //隐藏导航底部分割线
+    [self.navigationBar setShadowImage:[UIImage new]];
+    [self.navigationBar setBackgroundImage:[UIImage new] forBarMetrics:UIBarMetricsDefault];
     
 }
 

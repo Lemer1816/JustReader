@@ -9,9 +9,6 @@
 #import "NSObject+AFNetworking.h"
 #import "AppDelegate.h"
 
-//appdelegate的实例对象
-#define kAppdelegate ((AppDelegate *)[UIApplication sharedApplication].delegate)
-
 @implementation NSObject (AFNetworking)
 
 + (id)requestWithPath:(NSString *)path parameters:(id)parameters requestMethod:(RequestMethod)requestMethod progress:(void (^)(NSProgress *))downloadProgress successBlock:(SuccessBlock)successBlock failureBlock:(FailureBlock)failureBlock{

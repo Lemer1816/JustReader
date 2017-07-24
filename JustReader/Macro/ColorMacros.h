@@ -31,4 +31,7 @@
 // 灰色分割线颜色
 #define    kSEPARATORLINE_COLOR UIColorFromRGB(0xDCDCDC)
 
+//导航背景色(配色方案)
+#define NAVIGATION_BACKGROUNDCOLOR          UIColorFromRGB(0xEC304C)
+
 #endif /* ColorMacros_h */
