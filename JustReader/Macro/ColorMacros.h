@@ -33,5 +33,11 @@
 
 //导航背景色(配色方案)
 #define NAVIGATION_BACKGROUNDCOLOR          UIColorFromRGB(0xEC304C)
+//文字颜色(配色方案)
+#define TEXT_DARK_COLOR                     UIColorFromRGB(0x333333)
+#define TEXT_MID_COLOR                      UIColorFromRGB(0x666666)
+#define TEXT_LIGHT_COLOR                    UIColorFromRGB(0x999999)
+#define TEXT_WHITE_COLOR                    UIColorFromRGB(0xf2f2f2)
+#define TEXT_GREEN_COLOR                    RGBA(140, 196, 142, 1.0)
 
 #endif /* ColorMacros_h */

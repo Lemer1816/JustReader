@@ -11,6 +11,8 @@
 
 @interface BookDetailView : UIView
 
+@property (nonatomic, assign) CGFloat totalHeight;
+
 - (instancetype)initWithModel:(BookDetailModel *)model;
 
 @end

@@ -10,7 +10,9 @@
 #import "BookDetailView.h"
 
 @interface BookDetailViewController ()
-/** 详情页视图 */
+/** 详情页滚动视图 */
+@property (nonatomic, strong) UIScrollView *myScrollView;
+
 @property (nonatomic, strong) BookDetailView *bookDetailView;
 
 @property (nonatomic, strong) BookDetailModel *bookDetailModel;
@@ -24,23 +26,35 @@
     [[Network sharedNetwork] getBookDetailWithBookId:self.bookId successBlock:^(id responseBody) {
         NSLog(@"responseBody: %@", responseBody);
         self.bookDetailModel = [BookDetailModel parse:responseBody];
-        [self bookDetailView];
+        [self myScrollView];
     } failureBlock:^(NSError *error) {
         NSLog(@"error: %@", error);
     }];
     [self addBackButton];
 }
 #pragma mark - 懒加载 LazyLoad
-- (BookDetailView *)bookDetailView{
-    if (_bookDetailView == nil) {
-        _bookDetailView = [[BookDetailView alloc] initWithModel:self.bookDetailModel];
-        [self.view addSubview:_bookDetailView];
-        [_bookDetailView mas_makeConstraints:^(MASConstraintMaker *make) {
+- (UIScrollView *)myScrollView{
+    if (_myScrollView == nil) {
+        _myScrollView = [[UIScrollView alloc] init];
+        [self.view addSubview:_myScrollView];
+        [_myScrollView mas_makeConstraints:^(MASConstraintMaker *make) {
             make.edges.equalTo(0);
         }];
-        _bookDetailView.backgroundColor = [UIColor whiteColor];
+        BookDetailView *bookDetailView = [[BookDetailView alloc] initWithModel:self.bookDetailModel];
+        CGFloat totalHeight = bookDetailView.totalHeight;
+        [_myScrollView addSubview:bookDetailView];
+        [bookDetailView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.top.left.equalTo(0);
+            make.width.equalTo(SCREEN_WIDTH);
+            make.height.equalTo(totalHeight);
+        }];
+        bookDetailView.backgroundColor = [UIColor whiteColor];
+        
+        _myScrollView.bounces = NO;
+        _myScrollView.contentSize = CGSizeMake(SCREEN_WIDTH, totalHeight);
     }
-    return _bookDetailView;
+    return _myScrollView;
 }
+
 
 @end
