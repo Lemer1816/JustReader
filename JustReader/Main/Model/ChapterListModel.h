@@ -22,7 +22,6 @@
 @property (nonatomic, strong) NSString *name;
 
 @property (nonatomic, strong) NSArray<ChapterListInfoModel *> *chapters;
-
 @property (nonatomic, strong) NSString *link;
 
 @end

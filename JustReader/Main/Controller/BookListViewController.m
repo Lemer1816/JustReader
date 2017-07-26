@@ -14,6 +14,7 @@
 #import "BookListCollectionViewCell.h"
 
 #import "UIControl+Event.h"
+#import "UIScrollView+Refresh.h"
 
 
 @interface BookListViewController () <UITableViewDataSource, UITableViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate>
@@ -24,15 +25,77 @@
 /** 列表/网格切换按钮 */
 @property (nonatomic, strong) UIButton *selectBtn;
 /** 书籍列表数据 */
-@property (nonatomic, strong) NSMutableArray *bookList;
+@property (nonatomic, strong) NSMutableArray<BookListModel *> *bookList;
+/** 起始页码 */
+@property (nonatomic, assign) NSInteger startNumber;
 @end
 
 @implementation BookListViewController
 #pragma mark - 生命周期 LifeCircle
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [[Network sharedNetwork] getBookListWithKeywords:self.keywords startNumber:0 limitNumber:10 successBlock:^(id responseBody) {
-        NSLog(@"responseBody: %@", responseBody);
+    
+    [self addBackButton];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:self.selectBtn];
+    [self loadData];
+}
+
+#pragma mark - 方法 Methods
+- (void)loadData{
+    __block __weak __typeof(&*self)weakSelf = self;
+    //tableView添加头部刷新
+    [self.myTableView addHeaderRefresh:^{
+        [weakSelf requestDataWithRequestType:RequestTypeRefresh completionHandler:^(NSError *error) {
+            if (!error) {
+                [weakSelf.myTableView reloadData];
+            } else {
+                NSLog(@"error: %@", error);
+            }
+            [weakSelf.myTableView endHeaderRefresh];
+        }];
+    }];
+    //tableView添加脚步刷新
+    [self.myTableView addAutoFooterRefresh:^{
+        [weakSelf requestDataWithRequestType:RequestTypeLoadMore completionHandler:^(NSError *error) {
+            if (!error) {
+                [weakSelf.myTableView reloadData];
+            } else {
+                NSLog(@"error: %@", error);
+            }
+            [weakSelf.myTableView endFooterRefresh];
+        }];
+    }];
+    //collectionView添加头部刷新
+    [self.myCollectionView addHeaderRefresh:^{
+        [weakSelf requestDataWithRequestType:RequestTypeRefresh completionHandler:^(NSError *error) {
+            if (!error) {
+                [weakSelf.myCollectionView reloadData];
+            } else {
+                NSLog(@"error: %@", error);
+            }
+            [weakSelf.myCollectionView endHeaderRefresh];
+        }];
+    }];
+    //collectionView添加脚部刷新
+    [self.myCollectionView addAutoFooterRefresh:^{
+        [weakSelf requestDataWithRequestType:RequestTypeLoadMore completionHandler:^(NSError *error) {
+            if (!error) {
+                [weakSelf.myCollectionView reloadData];
+            } else {
+                NSLog(@"error: %@", error);
+            }
+            [weakSelf.myCollectionView endFooterRefresh];
+        }];
+    }];
+    [self.myTableView beginHeaderRefresh];
+}
+- (void)requestDataWithRequestType:(RequestType)requestType completionHandler:(void (^)(NSError *error))handler{
+    self.startNumber = requestType == RequestTypeRefresh ? 0 : self.startNumber+1;
+    [[Network sharedNetwork] getBookListWithKeywords:self.keywords startNumber:self.startNumber limitNumber:10 successBlock:^(id responseBody) {
+//        NSLog(@"responseBody: %@", responseBody);
+        if (requestType == RequestTypeRefresh) {
+            [self.bookList removeAllObjects];
+        }
         NSArray *bookArr = [responseBody objectForKey:@"books"];
         if (bookArr.count) {
             for (NSDictionary *dic in bookArr) {
@@ -41,22 +104,15 @@
                 NSLog(@"%@", img);
                 [self.bookList addObject:model];
             }
-            [self.myTableView reloadData];
-            [self.myCollectionView reloadData];
+            handler(nil);
         } else {
             //无数据处理
+            handler(responseBody);
         }
-        
-        
     } failureBlock:^(NSError *error) {
-        NSLog(@"error: %@", error);
+        handler(error);
     }];
-    [self addBackButton];
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:self.selectBtn];
 }
-
-#pragma mark - 方法 Methods
-
 #pragma mark - 协议方法 UITableViewDelegate/DataSource
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
     return 1;
@@ -68,7 +124,7 @@
     NSInteger row = indexPath.row;
     BookListCell *cell = [tableView dequeueReusableCellWithIdentifier:NSStringFromClass([BookListCell class])];
     BookListModel *model = [self.bookList objectAtIndex:row];
-    [cell.coverIV sd_setImageWithURL:[NSURL URLWithString:[[model.cover stringByRemovingPercentEncoding] substringFromIndex:7]] placeholderImage:[UIImage imageNamed:@"NoCover"]];
+    [cell.coverIV sd_setImageWithURL:[NSURL URLWithString:[model.cover isEqualToString:@""] ? @"" : [[model.cover stringByRemovingPercentEncoding] substringFromIndex:7]] placeholderImage:[UIImage imageNamed:@"NoCover"]];
     NSLog(@"%@", [model.cover stringByRemovingPercentEncoding]);
     cell.bookNameLb.text = model.title;
     cell.authorLb.text = [NSString stringWithFormat:@"作者: %@", model.author];
@@ -110,7 +166,7 @@
     NSInteger row = indexPath.row;
     BookListCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([BookListCollectionViewCell class]) forIndexPath:indexPath];
     BookListModel *model = [self.bookList objectAtIndex:row];
-    [cell.coverIV sd_setImageWithURL:[NSURL URLWithString:[[model.cover stringByRemovingPercentEncoding] substringFromIndex:7]] placeholderImage:[UIImage imageNamed:@"NoCover"]];
+    [cell.coverIV sd_setImageWithURL:[NSURL URLWithString:[model.cover isEqualToString:@""] ? @"" : [[model.cover stringByRemovingPercentEncoding] substringFromIndex:7]] placeholderImage:[UIImage imageNamed:@"NoCover"]];
     NSLog(@"%@", [model.cover stringByRemovingPercentEncoding]);
     cell.bookNameLb.text = model.title;
     
@@ -163,14 +219,16 @@
         _selectBtn.backgroundColor = [UIColor redColor];
         _selectBtn.titleLabel.font = [UIFont systemFontOfSize:15];
         __block __weak __typeof(&*self)weakSelf = self;
-        [_selectBtn addControlClick:^(UIControl *sender) {
+        [_selectBtn addControlClickBlock:^(UIControl *sender) {
             sender.selected = !sender.selected;
             if (sender.selected) {
                 [weakSelf.myTableView removeFromSuperview];
                 [weakSelf.view addSubview:weakSelf.myCollectionView];
+                [weakSelf.myCollectionView reloadData];
             } else {
                 [weakSelf.myCollectionView removeFromSuperview];
                 [weakSelf.view addSubview:weakSelf.myTableView];
+                [weakSelf.myTableView reloadData];
             }
         } forControlEvents:UIControlEventTouchUpInside];
     }

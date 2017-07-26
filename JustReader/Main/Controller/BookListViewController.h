@@ -12,5 +12,4 @@
 @interface BookListViewController : BasicViewController
 /** 关键词 */
 @property (nonatomic, strong) NSString *keywords;
-
 @end

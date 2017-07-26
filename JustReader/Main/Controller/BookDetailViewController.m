@@ -7,6 +7,8 @@
 //
 
 #import "BookDetailViewController.h"
+#import "ChapterListViewController.h"
+
 #import "BookDetailView.h"
 
 @interface BookDetailViewController ()
@@ -49,7 +51,15 @@
             make.height.equalTo(totalHeight);
         }];
         bookDetailView.backgroundColor = [UIColor whiteColor];
-        
+        bookDetailView.starReadingBlock = ^{
+            NSLog(@"开始阅读");
+            ChapterListViewController *chapterListVC = [[ChapterListViewController alloc] init];
+            chapterListVC.bookId = self.bookDetailModel._id;
+            [self.navigationController pushViewController:chapterListVC animated:YES];
+        };
+        bookDetailView.addMyBookBlock = ^{
+            NSLog(@"加入书单");
+        };
         _myScrollView.bounces = NO;
         _myScrollView.contentSize = CGSizeMake(SCREEN_WIDTH, totalHeight);
     }

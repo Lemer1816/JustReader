@@ -19,6 +19,8 @@
 		8C0A6EB91F009E72005DC5B0 /* NSObject+AFNetworking.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C0A6EB61F009E72005DC5B0 /* NSObject+AFNetworking.m */; };
 		8C0A6EBA1F009E72005DC5B0 /* NSObject+MJExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C0A6EB81F009E72005DC5B0 /* NSObject+MJExtension.m */; };
 		8C0A6EBD1F009E7B005DC5B0 /* UIScrollView+Refresh.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C0A6EBC1F009E7B005DC5B0 /* UIScrollView+Refresh.m */; };
+		8C8533F11F283882003DA40E /* ChapterListTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C8533EF1F283882003DA40E /* ChapterListTableViewCell.m */; };
+		8C8533F21F283882003DA40E /* ChapterListTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8C8533F01F283882003DA40E /* ChapterListTableViewCell.xib */; };
 		8C9BC6C41F20435700C9E071 /* HomePageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9BC6C31F20435700C9E071 /* HomePageViewController.m */; };
 		8C9BC6CB1F20458500C9E071 /* BasicViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9BC6CA1F20458500C9E071 /* BasicViewController.m */; };
 		8C9BC6D11F2045F800C9E071 /* BasicTabBarController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C9BC6D01F2045F800C9E071 /* BasicTabBarController.m */; };
@@ -74,6 +76,9 @@
 		8C0A6EB81F009E72005DC5B0 /* NSObject+MJExtension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+MJExtension.m"; sourceTree = "<group>"; };
 		8C0A6EBB1F009E7B005DC5B0 /* UIScrollView+Refresh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIScrollView+Refresh.h"; sourceTree = "<group>"; };
 		8C0A6EBC1F009E7B005DC5B0 /* UIScrollView+Refresh.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIScrollView+Refresh.m"; sourceTree = "<group>"; };
+		8C8533EE1F283882003DA40E /* ChapterListTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChapterListTableViewCell.h; sourceTree = "<group>"; };
+		8C8533EF1F283882003DA40E /* ChapterListTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChapterListTableViewCell.m; sourceTree = "<group>"; };
+		8C8533F01F283882003DA40E /* ChapterListTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ChapterListTableViewCell.xib; sourceTree = "<group>"; };
 		8C9BC6C21F20435700C9E071 /* HomePageViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HomePageViewController.h; sourceTree = "<group>"; };
 		8C9BC6C31F20435700C9E071 /* HomePageViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HomePageViewController.m; sourceTree = "<group>"; };
 		8C9BC6C91F20458500C9E071 /* BasicViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BasicViewController.h; sourceTree = "<group>"; };
@@ -369,6 +374,9 @@
 				8CC5169E1F25843600B61E2E /* BookListCollectionViewCell.xib */,
 				8CC516A11F25DCAC00B61E2E /* BookDetailView.h */,
 				8CC516A21F25DCAC00B61E2E /* BookDetailView.m */,
+				8C8533EE1F283882003DA40E /* ChapterListTableViewCell.h */,
+				8C8533EF1F283882003DA40E /* ChapterListTableViewCell.m */,
+				8C8533F01F283882003DA40E /* ChapterListTableViewCell.xib */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -466,6 +474,7 @@
 				8C9BC6DF1F2091B500C9E071 /* BookListCell.xib in Resources */,
 				8C0A6E931F00934E005DC5B0 /* LaunchScreen.storyboard in Resources */,
 				8C0A6E901F00934E005DC5B0 /* Assets.xcassets in Resources */,
+				8C8533F21F283882003DA40E /* ChapterListTableViewCell.xib in Resources */,
 				8CC516A01F25843600B61E2E /* BookListCollectionViewCell.xib in Resources */,
 				8C0A6E8E1F00934E005DC5B0 /* Main.storyboard in Resources */,
 			);
@@ -541,6 +550,7 @@
 				8C0A6E881F00934E005DC5B0 /* AppDelegate.m in Sources */,
 				8C0A6EB41F009DE3005DC5B0 /* UIView+Frame.m in Sources */,
 				8CC5169F1F25843600B61E2E /* BookListCollectionViewCell.m in Sources */,
+				8C8533F11F283882003DA40E /* ChapterListTableViewCell.m in Sources */,
 				8CB4D20F1F1F083A006ACCDF /* BookListModel.m in Sources */,
 				8CC516A31F25DCAD00B61E2E /* BookDetailView.m in Sources */,
 				8C0A6EB91F009E72005DC5B0 /* NSObject+AFNetworking.m in Sources */,

@@ -74,7 +74,7 @@
             make.width.equalTo(100);
             make.height.equalTo(130);
         }];
-        [coverIV sd_setImageWithURL:[NSURL URLWithString:[[self.bookDetailModel.cover stringByRemovingPercentEncoding] substringFromIndex:7]] placeholderImage:[UIImage imageNamed:@"NoCover"]];
+        [coverIV sd_setImageWithURL:[NSURL URLWithString:[self.bookDetailModel.cover isEqualToString:@""] ? @"" :  [[self.bookDetailModel.cover stringByRemovingPercentEncoding] substringFromIndex:7]] placeholderImage:[UIImage imageNamed:@"NoCover"]];
         //书名
         UILabel *bookNameLb = [[UILabel alloc] init];
         [_basicInfoView addSubview:bookNameLb];
@@ -242,6 +242,9 @@
         readBtn.backgroundColor = NAVIGATION_BACKGROUNDCOLOR;
         readBtn.layer.masksToBounds = YES;
         readBtn.layer.cornerRadius = 20;
+        [readBtn addControlClickBlock:^(UIControl *sender) {
+            self.starReadingBlock();
+        } forControlEvents:UIControlEventTouchUpInside];
         //加入书单
         UIButton *addMyBookBtn = [UIButton buttonWithType:UIButtonTypeCustom];
         [_readActionView addSubview:addMyBookBtn];
@@ -256,6 +259,9 @@
         addMyBookBtn.backgroundColor = TEXT_WHITE_COLOR;
         addMyBookBtn.layer.masksToBounds = YES;
         addMyBookBtn.layer.cornerRadius = 20;
+        [addMyBookBtn addControlClickBlock:^(UIControl *sender) {
+            self.addMyBookBlock();
+        } forControlEvents:UIControlEventTouchUpInside];
     }
     return _readActionView;
 }

@@ -7,7 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "BasicViewController.h"
 
-@interface ChapterListViewController : UIViewController
+@interface ChapterListViewController : BasicViewController
+/** 书籍Id */
+@property (nonatomic, strong) NSString *bookId;
 
 @end

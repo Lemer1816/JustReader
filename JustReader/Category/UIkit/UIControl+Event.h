@@ -8,12 +8,12 @@
 
 #import <UIKit/UIKit.h>
 
-typedef void(^ControlClick)(UIControl *sender);
+typedef void(^ControlClickBlock)(UIControl *sender);
 
 @interface UIControl (Event)
 
-@property (nonatomic, copy) ControlClick controlClick;
+@property (nonatomic, copy) ControlClickBlock controlClickBlock;
 /** UIControl及其子类点击事件block */
-- (void)addControlClick:(ControlClick)controlClick forControlEvents:(UIControlEvents)controlEvents;
+- (void)addControlClickBlock:(ControlClickBlock)controlClickBlock forControlEvents:(UIControlEvents)controlEvents;
 
 @end

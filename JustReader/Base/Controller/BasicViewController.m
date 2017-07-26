@@ -30,7 +30,7 @@
         UIButton *backBtn = [UIButton buttonWithType:UIButtonTypeCustom];
         backBtn.bounds = CGRectMake(0, 0, 20, 20);
         [backBtn setImage:[UIImage imageNamed:@"nav_back_white"] forState:UIControlStateNormal];
-        [backBtn addControlClick:^(UIControl *sender) {
+        [backBtn addControlClickBlock:^(UIControl *sender) {
             [self.navigationController popViewControllerAnimated:YES];
         } forControlEvents:UIControlEventTouchUpInside];
         _backBarBtn = [[UIBarButtonItem alloc] initWithCustomView:backBtn];

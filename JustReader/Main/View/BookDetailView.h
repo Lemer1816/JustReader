@@ -9,10 +9,17 @@
 #import <UIKit/UIKit.h>
 #import "BookDetailModel.h"
 
+typedef void(^StarReadingBlock)();
+
+typedef void(^AddMyBookBlock)();
+
 @interface BookDetailView : UIView
 
 @property (nonatomic, assign) CGFloat totalHeight;
 
 - (instancetype)initWithModel:(BookDetailModel *)model;
-
+/** 开始阅读block */
+@property (nonatomic, copy) StarReadingBlock starReadingBlock;
+/** 加入书单block */
+@property (nonatomic, copy) AddMyBookBlock addMyBookBlock;
 @end

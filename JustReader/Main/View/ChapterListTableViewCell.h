@@ -9,5 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @interface ChapterListTableViewCell : UITableViewCell
+/** 章节名 */
+@property (weak, nonatomic) IBOutlet UILabel *chapterNameLb;
 
 @end

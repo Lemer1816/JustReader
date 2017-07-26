@@ -17,26 +17,31 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    //获取书籍列表
     [[Network sharedNetwork] getBookListWithKeywords:@"红尘" startNumber:0 limitNumber:10 successBlock:^(id responseBody) {
         NSLog(@"responseBody: %@", responseBody);
     } failureBlock:^(NSError *error) {
         NSLog(@"error: %@", error);
     }];
+    //获取书籍详情
     [[Network sharedNetwork] getBookDetailWithBookId:@"57206c3539a913ad65d35c7b" successBlock:^(id responseBody) {
         NSLog(@"responseBody: %@", responseBody);
     } failureBlock:^(NSError *error) {
         NSLog(@"error: %@", error);
     }];
+    //获取章节列表
     [[Network sharedNetwork] getChapterListWithBookId:@"577b477dbd86a4bd3f8bf1b2" successBlock:^(id responseBody) {
         NSLog(@"responseBody: %@", responseBody);
     } failureBlock:^(NSError *error) {
         NSLog(@"error: %@", error);
     }];
+    //自动补全
     [[Network sharedNetwork] getAutoCompleteWithKeywords:@"红尘" successBlock:^(id responseBody) {
         NSLog(@"responseBody: %@", responseBody);
     } failureBlock:^(NSError *error) {
         NSLog(@"error: %@", error);
     }];
+    //获取章节详情
     [[Network sharedNetwork] getChapterDetailWithChapterLink:@"http://www.biquge.la/book/16431/6652065.html" successBlock:^(id responseBody) {
         NSLog(@"responseBody: %@", responseBody);
     } failureBlock:^(NSError *error) {

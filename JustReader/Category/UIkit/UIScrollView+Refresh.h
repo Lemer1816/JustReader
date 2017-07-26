@@ -9,6 +9,13 @@
 #import <UIKit/UIKit.h>
 #import <MJRefresh.h>
 
+typedef NS_ENUM(NSUInteger, RequestType) {
+    //下拉刷新
+    RequestTypeRefresh,
+    //上拉加载
+    RequestTypeLoadMore
+};
+
 @interface UIScrollView (Refresh)
 /** 添加头部刷新 */
 - (void)addHeaderRefresh:(MJRefreshComponentRefreshingBlock)block;
