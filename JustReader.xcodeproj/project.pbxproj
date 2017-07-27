@@ -41,6 +41,7 @@
 		8CC516A01F25843600B61E2E /* BookListCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8CC5169E1F25843600B61E2E /* BookListCollectionViewCell.xib */; };
 		8CC516A31F25DCAD00B61E2E /* BookDetailView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CC516A21F25DCAC00B61E2E /* BookDetailView.m */; };
 		8CC516A71F25F21500B61E2E /* NSString+Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CC516A61F25F21500B61E2E /* NSString+Utils.m */; };
+		8CCA93B51F29D05400E119A0 /* BookSourceModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CCA93B41F29D05400E119A0 /* BookSourceModel.m */; };
 		8CF19D421F272AF000AF1743 /* NSDate+Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CF19D411F272AF000AF1743 /* NSDate+Utils.m */; };
 /* End PBXBuildFile section */
 
@@ -117,6 +118,8 @@
 		8CC516A21F25DCAC00B61E2E /* BookDetailView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BookDetailView.m; sourceTree = "<group>"; };
 		8CC516A51F25F21500B61E2E /* NSString+Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Utils.h"; sourceTree = "<group>"; };
 		8CC516A61F25F21500B61E2E /* NSString+Utils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+Utils.m"; sourceTree = "<group>"; };
+		8CCA93B31F29D05400E119A0 /* BookSourceModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BookSourceModel.h; sourceTree = "<group>"; };
+		8CCA93B41F29D05400E119A0 /* BookSourceModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BookSourceModel.m; sourceTree = "<group>"; };
 		8CF19D401F272AF000AF1743 /* NSDate+Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDate+Utils.h"; sourceTree = "<group>"; };
 		8CF19D411F272AF000AF1743 /* NSDate+Utils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDate+Utils.m"; sourceTree = "<group>"; };
 		94708E078F8DDF04EA11E6C6 /* Pods-JustReader.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JustReader.release.xcconfig"; path = "Pods/Target Support Files/Pods-JustReader/Pods-JustReader.release.xcconfig"; sourceTree = "<group>"; };
@@ -390,6 +393,8 @@
 				8CB4D2111F1F0C4A006ACCDF /* BookDetailModel.m */,
 				8CB4D2131F1F355E006ACCDF /* AutoCompleteModel.h */,
 				8CB4D2141F1F355E006ACCDF /* AutoCompleteModel.m */,
+				8CCA93B31F29D05400E119A0 /* BookSourceModel.h */,
+				8CCA93B41F29D05400E119A0 /* BookSourceModel.m */,
 				8CB4D2161F1F47CF006ACCDF /* ChapterListModel.h */,
 				8CB4D2171F1F47CF006ACCDF /* ChapterListModel.m */,
 				8CB4D2191F1F47E0006ACCDF /* ChapterDetailModel.h */,
@@ -560,6 +565,7 @@
 				8CB4D2151F1F355E006ACCDF /* AutoCompleteModel.m in Sources */,
 				8CF19D421F272AF000AF1743 /* NSDate+Utils.m in Sources */,
 				8CB4D2121F1F0C4A006ACCDF /* BookDetailModel.m in Sources */,
+				8CCA93B51F29D05400E119A0 /* BookSourceModel.m in Sources */,
 				8C9BC6D11F2045F800C9E071 /* BasicTabBarController.m in Sources */,
 				8CC516981F25829600B61E2E /* ChapterListViewController.m in Sources */,
 				8C0A6E851F00934E005DC5B0 /* main.m in Sources */,

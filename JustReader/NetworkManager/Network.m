@@ -49,10 +49,23 @@ singleton_implementation(Network)
         failureBlock(error);
     }];
 }
-#pragma mark 根据书籍id获取章节列表
-- (id)getChapterListWithBookId:(NSString *)bookId successBlock:(SuccessBlock)successBlock failureBlock:(FailureBlock)failureBlock{
+#pragma mark 根据书籍id获取书源信息
+- (id)getBookSourceListWithBookId:(NSString *)bookId successBlock:(SuccessBlock)successBlock failureBlock:(FailureBlock)failureBlock{
+    //传参
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    [params setValue:@"summary" forKey:@"view"];
+    [params setValue:bookId forKey:@"book"];
+    //请求
+    return [Network requestWithPath:GET_BOOK_SOURCE_LIST parameters:params requestMethod:RequestMethodGet progress:nil successBlock:^(id responseBody) {
+        successBlock(responseBody);
+    } failureBlock:^(NSError *error) {
+        failureBlock(error);
+    }];
+}
+#pragma mark 根据书源id获取章节列表
+- (id)getChapterListWithBookSourceId:(NSString *)bookSourceId successBlock:(SuccessBlock)successBlock failureBlock:(FailureBlock)failureBlock{
     //拼接接口
-    NSString *path = [GET_CHAPTER_LIST stringByAppendingPathComponent:bookId];
+    NSString *path = [GET_CHAPTER_LIST stringByAppendingPathComponent:bookSourceId];
     //传参
     NSMutableDictionary *params = [NSMutableDictionary dictionary];
     [params setValue:@"chapters" forKey:@"view"];

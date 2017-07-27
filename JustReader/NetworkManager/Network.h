@@ -29,10 +29,14 @@ singleton_interface(Network)
 - (id)getAutoCompleteWithKeywords:(NSString *)keywords
                      successBlock:(SuccessBlock)successBlock
                      failureBlock:(FailureBlock)failureBlock;
-/** 根据书籍id获取章节列表 */
-- (id)getChapterListWithBookId:(NSString *)bookId
-                  successBlock:(SuccessBlock)successBlock
-                  failureBlock:(FailureBlock)failureBlock;
+/** 根据书籍id获取书源信息 */
+- (id)getBookSourceListWithBookId:(NSString *)bookId
+                     successBlock:(SuccessBlock)successBlock
+                     failureBlock:(FailureBlock)failureBlock;
+/** 根据书源id获取章节列表 */
+- (id)getChapterListWithBookSourceId:(NSString *)bookSourceId
+                        successBlock:(SuccessBlock)successBlock
+                        failureBlock:(FailureBlock)failureBlock;
 /** 根据书籍link获取章节内容 */
 - (id)getChapterDetailWithChapterLink:(NSString *)chapterLink
                          successBlock:(SuccessBlock)successBlock

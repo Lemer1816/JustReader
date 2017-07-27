@@ -29,12 +29,6 @@
     } failureBlock:^(NSError *error) {
         NSLog(@"error: %@", error);
     }];
-    //获取章节列表
-    [[Network sharedNetwork] getChapterListWithBookId:@"577b477dbd86a4bd3f8bf1b2" successBlock:^(id responseBody) {
-        NSLog(@"responseBody: %@", responseBody);
-    } failureBlock:^(NSError *error) {
-        NSLog(@"error: %@", error);
-    }];
     //自动补全
     [[Network sharedNetwork] getAutoCompleteWithKeywords:@"红尘" successBlock:^(id responseBody) {
         NSLog(@"responseBody: %@", responseBody);

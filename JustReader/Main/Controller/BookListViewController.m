@@ -36,6 +36,7 @@
     [super viewDidLoad];
     
     [self addBackButton];
+    self.navigationItem.title = @"书籍列表";
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:self.selectBtn];
     [self loadData];
 }

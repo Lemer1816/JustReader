@@ -21,6 +21,8 @@
 #define GET_BOOK_DETAIL              PATH(@"/book")
 //自动补全
 #define GET_AUTO_COMPLETE            PATH(@"/book/auto-complete")
+//书源信息
+#define GET_BOOK_SOURCE_LIST         PATH(@"/toc")
 //章节列表
 #define GET_CHAPTER_LIST             PATH(@"/toc")
 //章节内容

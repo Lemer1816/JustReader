@@ -16,8 +16,12 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    //设置透明度
     self.navigationBar.translucent = NO;
+    //设置背景色
     self.navigationBar.barTintColor = NAVIGATION_BACKGROUNDCOLOR;
+    //设置标题文字的颜色和大小
+    [self.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName: TEXT_WHITE_COLOR, NSFontAttributeName: [UIFont systemFontOfSize:17]}];
     //隐藏导航底部分割线
     [self.navigationBar setShadowImage:[UIImage new]];
     [self.navigationBar setBackgroundImage:[UIImage new] forBarMetrics:UIBarMetricsDefault];

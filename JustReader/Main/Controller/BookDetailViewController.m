@@ -33,6 +33,7 @@
         NSLog(@"error: %@", error);
     }];
     [self addBackButton];
+    self.navigationItem.title = @"书籍详情";
 }
 #pragma mark - 懒加载 LazyLoad
 - (UIScrollView *)myScrollView{

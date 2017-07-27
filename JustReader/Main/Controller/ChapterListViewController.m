@@ -9,17 +9,25 @@
 #import "ChapterListViewController.h"
 
 #import "ChapterListModel.h"
+#import "BookSourceModel.h"
 
 #import "ChapterListTableViewCell.h"
 
 #import "UIScrollView+Refresh.h"
+#import "UIControl+Event.h"
 
 @interface ChapterListViewController () <UITableViewDataSource, UITableViewDelegate>
-@property (nonatomic, strong) UITableView *myTableView;
-
-@property (nonatomic, strong) ChapterListModel *chapterListModel;
+/** 书源列表 */
+@property (nonatomic, strong) NSMutableArray<BookSourceModel *> *bookSourceList;
+/** 被选中的书源 */
+@property (nonatomic, strong) BookSourceModel *selectedBookSourceModel;
 /** 章节列表 */
 @property (nonatomic, strong) NSArray<ChapterListInfoModel *> *chapterList;
+/** 列表 */
+@property (nonatomic, strong) UITableView *myTableView;
+/** 顺序/倒序按钮 */
+@property (nonatomic, strong) UIBarButtonItem *selectOrderBtn;
+
 @end
 
 @implementation ChapterListViewController
@@ -27,23 +35,39 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self addBackButton];
+    self.navigationItem.rightBarButtonItem = self.selectOrderBtn;
+    self.navigationItem.title = @"章节列表";
     [self loadData];
 }
 #pragma mark - 方法 Methods
 - (void)loadData{
-    [[Network sharedNetwork] getChapterListWithBookId:@"577b477dbd86a4bd3f8bf1b2" successBlock:^(id responseBody) {
+    [[Network sharedNetwork] getBookSourceListWithBookId:self.bookId successBlock:^(id responseBody) {
+        if ([responseBody isKindOfClass:[NSArray class]]) {
+            for (NSDictionary *dict in (NSArray *)responseBody) {
+                BookSourceModel *model = [BookSourceModel parse:dict];
+                if ([model.name isEqualToString:@"优质书源"]) {
+                    continue;
+                }
+                [self.bookSourceList addObject:model];
+            }
+            self.selectedBookSourceModel = self.bookSourceList.firstObject;
+            [self requestChapterList];
+        }
+    } failureBlock:^(NSError *error) {
+        NSLog(@"error: %@", error);
+    }];
+}
+- (void)requestChapterList{
+    [[Network sharedNetwork] getChapterListWithBookSourceId:self.selectedBookSourceModel._id successBlock:^(id responseBody) {
         NSLog(@"responseBody: %@", responseBody);
-        self.chapterListModel = [ChapterListModel parse:responseBody];
-        self.chapterList = self.chapterListModel.chapters;
+        ChapterListModel *model = [ChapterListModel parse:responseBody];
+        self.chapterList = model.chapters;
         [self.myTableView reloadData];
     } failureBlock:^(NSError *error) {
         NSLog(@"error: %@", error);
     }];
 }
-- (void)requestDataWithRequestType:(RequestType)requestType completionHandler:(void (^)(NSError *error))handler{
-    
-    
-}
+
 #pragma mark - 协议方法 UITableViewDelegate/DataSource
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
     return 1;
@@ -73,6 +97,18 @@
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 #pragma mark - 懒加载 LazyLoad
+- (NSMutableArray<BookSourceModel *> *)bookSourceList{
+    if (_bookSourceList == nil) {
+        _bookSourceList = [NSMutableArray array];
+    }
+    return _bookSourceList;
+}
+- (BookSourceModel *)selectedBookSourceModel{
+    if (_selectedBookSourceModel == nil) {
+        _selectedBookSourceModel = [[BookSourceModel alloc] init];
+    }
+    return _selectedBookSourceModel;
+}
 - (UITableView *)myTableView{
     if (_myTableView == nil) {
         _myTableView = [[UITableView alloc] init];
@@ -91,5 +127,24 @@
         
     }
     return _myTableView;
+}
+- (UIBarButtonItem *)selectOrderBtn{
+    if (_selectOrderBtn == nil) {
+        UIButton *orderBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        orderBtn.bounds = CGRectMake(0, 0, 50, 30);
+        [orderBtn setTitle:@"顺序" forState:UIControlStateNormal];
+        [orderBtn setTitle:@"倒序" forState:UIControlStateSelected];
+        
+        [orderBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [orderBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateSelected];
+        
+        orderBtn.titleLabel.font = [UIFont systemFontOfSize:15];
+        [orderBtn addControlClickBlock:^(UIControl *sender) {
+            sender.selected = !sender.selected;
+            
+        } forControlEvents:UIControlEventTouchUpInside];
+        _selectOrderBtn = [[UIBarButtonItem alloc] initWithCustomView:orderBtn];
+    }
+    return _selectOrderBtn;
 }
 @end
