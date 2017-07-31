@@ -27,7 +27,10 @@ typedef NS_ENUM(NSUInteger, StringType) {
  *  @return height  文本高度
  *
  */
-+ (CGFloat)heightWithContent:(NSString *)content font:(UIFont *)font width:(CGFloat)width;
++ (CGFloat)heightWithContent:(NSString *)content
+                        font:(UIFont *)font
+                       width:(CGFloat)width
+      hasFirstLineHeadIndent:(BOOL)hasFirstLineHeadIndent;
 
 /*  根据文本属性字典得到文本高度
  *
@@ -37,7 +40,9 @@ typedef NS_ENUM(NSUInteger, StringType) {
  *  @return height  文本高度
  *
  */
-//+ (CGFloat)heightWithContent:(NSString *)content attributesDictionary:(NSDictionary *)attributesDictionary;
++ (CGFloat)heightWithContent:(NSString *)content
+                       width:(CGFloat)width
+        attributesDictionary:(NSDictionary *)attributesDictionary;
 
 /*  根据文本内容,字体大小,行宽得到文本属性字典
  *
@@ -48,5 +53,8 @@ typedef NS_ENUM(NSUInteger, StringType) {
  *  @return attributesDictionary    文本属性字典
  *
  */
-+ (NSDictionary *)attributesDictionaryWithContent:(NSString *)content font:(UIFont *)font width:(CGFloat)width;
++ (NSDictionary *)attributesDictionaryWithContent:(NSString *)content
+                                             font:(UIFont *)font
+                                            width:(CGFloat)width
+                           hasFirstLineHeadIndent:(BOOL)hasFirstLineHeadIndent;
 @end

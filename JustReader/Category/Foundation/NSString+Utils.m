@@ -40,13 +40,17 @@
         return [NSString stringWithFormat:@"%ld.%ld.%ld", year, month, day];
     }
 }
-+ (CGFloat)heightWithContent:(NSString *)content font:(UIFont *)font width:(CGFloat)width{
++ (CGFloat)heightWithContent:(NSString *)content font:(UIFont *)font width:(CGFloat)width hasFirstLineHeadIndent:(BOOL)hasFirstLineHeadIndent{
     
-    NSDictionary *dic = [NSString attributesDictionaryWithContent:content font:font width:width];
+    NSDictionary *dic = [NSString attributesDictionaryWithContent:content font:font width:width hasFirstLineHeadIndent:hasFirstLineHeadIndent];
     CGSize size = [content boundingRectWithSize:CGSizeMake(width, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:dic context:nil].size;
     return size.height;
 }
-+ (NSDictionary *)attributesDictionaryWithContent:(NSString *)content font:(UIFont *)font width:(CGFloat)width{
++ (CGFloat)heightWithContent:(NSString *)content width:(CGFloat)width  attributesDictionary:(NSDictionary *)attributesDictionary{
+    CGSize size = [content boundingRectWithSize:CGSizeMake(width, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:attributesDictionary context:nil].size;
+    return size.height;
+}
++ (NSDictionary *)attributesDictionaryWithContent:(NSString *)content font:(UIFont *)font width:(CGFloat)width hasFirstLineHeadIndent:(BOOL)hasFirstLineHeadIndent{
     NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
     //折行方式
     paragraphStyle.lineBreakMode = NSLineBreakByCharWrapping;
@@ -57,7 +61,7 @@
     //判断每行最后一个单词是否被截断,数值介于0.0~1.0,越靠近1.0被截断的几率越大
     paragraphStyle.hyphenationFactor = 1.0;
     //首行缩进
-    paragraphStyle.firstLineHeadIndent = 0.0;
+    paragraphStyle.firstLineHeadIndent = hasFirstLineHeadIndent ? font.lineHeight*2 : 0.0;
     //段落前间距(暂时发现\n存在时生效)
     paragraphStyle.paragraphSpacingBefore = 0.0;
     //段落后间距(暂时发现\n存在时生效)
@@ -66,7 +70,7 @@
     paragraphStyle.lineHeightMultiple = 1.0;
     paragraphStyle.headIndent = 0;
     paragraphStyle.tailIndent = 0;
-    NSDictionary *dic = @{NSFontAttributeName:font, NSParagraphStyleAttributeName:paragraphStyle, NSKernAttributeName:@1.5f};
+    NSDictionary *dic = @{NSFontAttributeName:font, NSParagraphStyleAttributeName:paragraphStyle,  NSKernAttributeName:@1.5f};
     return dic;
 }
 @end

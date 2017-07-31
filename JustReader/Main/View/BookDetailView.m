@@ -44,8 +44,8 @@
 }
 //计算总体高度
 - (void)calculateTotalHeight{
-    CGFloat introHeight = [NSString heightWithContent:self.introductionLb.text font:self.tagsLb.font width:SCREEN_WIDTH-30];
-    CGFloat tagsHeight = [NSString heightWithContent:self.tagsLb.text font:self.tagsLb.font width:SCREEN_WIDTH-30];
+    CGFloat introHeight = [NSString heightWithContent:self.introductionLb.text font:self.tagsLb.font width:SCREEN_WIDTH-30 hasFirstLineHeadIndent:NO];
+    CGFloat tagsHeight = [NSString heightWithContent:self.tagsLb.text font:self.tagsLb.font width:SCREEN_WIDTH-30 hasFirstLineHeadIndent:NO];
     self.totalHeight = 225 + 15 + introHeight + 15 + tagsHeight + 15 + 40 + 15 + 60 + 15;
 }
 #pragma mark - 懒加载 LazyLoad
@@ -139,7 +139,7 @@
         _introductionLb.textColor = UIColorFromRGB(0x999999);
 //        _introductionLb.text = self.bookDetailModel.longIntro;
         NSString *intro = [NSString stringWithFormat:@"简介:\n%@", self.bookDetailModel.longIntro];
-        _introductionLb.attributedText = [[NSAttributedString alloc] initWithString:intro attributes:[NSString attributesDictionaryWithContent:intro font:_introductionLb.font width:SCREEN_WIDTH-30]];
+        _introductionLb.attributedText = [[NSAttributedString alloc] initWithString:intro attributes:[NSString attributesDictionaryWithContent:intro font:_introductionLb.font width:SCREEN_WIDTH-30 hasFirstLineHeadIndent:NO]];
         _introductionLb.numberOfLines = 0;
 //        _introductionLb.backgroundColor = [UIColor purpleColor];
     }
@@ -161,7 +161,7 @@
 //        _tagsLb.text = [tagsStr copy];
         _tagsLb.font = [UIFont systemFontOfSize:14];
         _tagsLb.textColor = NAVIGATION_BACKGROUNDCOLOR;
-        _tagsLb.attributedText = [[NSAttributedString alloc] initWithString:[tagsStr copy] attributes:[NSString attributesDictionaryWithContent:[tagsStr copy] font:_introductionLb.font width:SCREEN_WIDTH-30]];
+        _tagsLb.attributedText = [[NSAttributedString alloc] initWithString:[tagsStr copy] attributes:[NSString attributesDictionaryWithContent:[tagsStr copy] font:_introductionLb.font width:SCREEN_WIDTH-30 hasFirstLineHeadIndent:NO]];
 
         _tagsLb.numberOfLines = 0;
 //        _tagsLb.backgroundColor = [UIColor blueColor];

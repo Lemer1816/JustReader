@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "NSObject+MJExtension.h"
 
 @interface ChapterDetailModel : NSObject
 /** 标题 */

@@ -56,7 +56,7 @@
         }];
     }];
     //tableView添加脚步刷新
-    [self.myTableView addAutoFooterRefresh:^{
+    [self.myTableView addBackFooterRefresh:^{
         [weakSelf requestDataWithRequestType:RequestTypeLoadMore completionHandler:^(NSError *error) {
             if (!error) {
                 [weakSelf.myTableView reloadData];
@@ -78,7 +78,7 @@
         }];
     }];
     //collectionView添加脚部刷新
-    [self.myCollectionView addAutoFooterRefresh:^{
+    [self.myCollectionView addBackFooterRefresh:^{
         [weakSelf requestDataWithRequestType:RequestTypeLoadMore completionHandler:^(NSError *error) {
             if (!error) {
                 [weakSelf.myCollectionView reloadData];

@@ -34,7 +34,7 @@
             [self.navigationController popViewControllerAnimated:YES];
         } forControlEvents:UIControlEventTouchUpInside];
         _backBarBtn = [[UIBarButtonItem alloc] initWithCustomView:backBtn];
-    }
+     }
     return _backBarBtn;
 }
 

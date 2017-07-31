@@ -7,6 +7,7 @@
 //
 
 #import "ChapterListViewController.h"
+#import "ChapterDetailViewController.h"
 
 #import "ChapterListModel.h"
 #import "BookSourceModel.h"
@@ -21,12 +22,14 @@
 @property (nonatomic, strong) NSMutableArray<BookSourceModel *> *bookSourceList;
 /** 被选中的书源 */
 @property (nonatomic, strong) BookSourceModel *selectedBookSourceModel;
-/** 章节列表 */
-@property (nonatomic, strong) NSArray<ChapterListInfoModel *> *chapterList;
+/** 章节列表(顺序) */
+@property (nonatomic, strong) NSArray<ChapterListInfoModel *> *chapterIncreasedList;
+/** 章节列表(倒序) */
+@property (nonatomic, strong) NSArray<ChapterListInfoModel *> *chapterDecreasedList;
 /** 列表 */
 @property (nonatomic, strong) UITableView *myTableView;
 /** 顺序/倒序按钮 */
-@property (nonatomic, strong) UIBarButtonItem *selectOrderBtn;
+@property (nonatomic, strong) UIButton *selectOrderBtn;
 
 @end
 
@@ -35,7 +38,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self addBackButton];
-    self.navigationItem.rightBarButtonItem = self.selectOrderBtn;
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:self.selectOrderBtn];
     self.navigationItem.title = @"章节列表";
     [self loadData];
 }
@@ -50,7 +53,7 @@
                 }
                 [self.bookSourceList addObject:model];
             }
-            self.selectedBookSourceModel = self.bookSourceList.firstObject;
+            self.selectedBookSourceModel = [self.bookSourceList objectAtIndex:1];
             [self requestChapterList];
         }
     } failureBlock:^(NSError *error) {
@@ -59,9 +62,18 @@
 }
 - (void)requestChapterList{
     [[Network sharedNetwork] getChapterListWithBookSourceId:self.selectedBookSourceModel._id successBlock:^(id responseBody) {
-        NSLog(@"responseBody: %@", responseBody);
         ChapterListModel *model = [ChapterListModel parse:responseBody];
-        self.chapterList = model.chapters;
+        self.chapterIncreasedList = model.chapters;
+        NSOperationQueue *queue = [[NSOperationQueue alloc] init];
+        [queue addOperationWithBlock:^{
+            NSLog(@"循环开始");
+            NSMutableArray *tmpArr = [NSMutableArray array];
+            for (int i = (int)self.chapterIncreasedList.count-1; i >= 0; i--) {
+                [tmpArr addObject:[self.chapterIncreasedList objectAtIndex:i]];
+            }
+            self.chapterDecreasedList = [tmpArr copy];
+            NSLog(@"循环结束");
+        }];
         [self.myTableView reloadData];
     } failureBlock:^(NSError *error) {
         NSLog(@"error: %@", error);
@@ -73,11 +85,12 @@
     return 1;
 }
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return self.chapterList.count;
+    return self.chapterIncreasedList.count;
 }
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     ChapterListTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:NSStringFromClass([ChapterListTableViewCell class])];
-    ChapterListInfoModel *model = [self.chapterList objectAtIndex:indexPath.row];
+    ChapterListInfoModel *model = self.selectOrderBtn.selected ? [self.chapterDecreasedList objectAtIndex:indexPath.row] : [self.chapterIncreasedList objectAtIndex:indexPath.row];
+    
     cell.chapterNameLb.text = model.title;
     return cell;
 }
@@ -95,6 +108,11 @@
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    NSInteger row = indexPath.row;
+    ChapterListInfoModel *model = self.selectOrderBtn.selected ? [self.chapterDecreasedList objectAtIndex:indexPath.row] : [self.chapterIncreasedList objectAtIndex:indexPath.row];
+    ChapterDetailViewController *chapterDetailVC = [[ChapterDetailViewController alloc] init];
+    chapterDetailVC.chapterLink = model.link;
+    [self.navigationController pushViewController:chapterDetailVC animated:YES];
 }
 #pragma mark - 懒加载 LazyLoad
 - (NSMutableArray<BookSourceModel *> *)bookSourceList{
@@ -128,22 +146,22 @@
     }
     return _myTableView;
 }
-- (UIBarButtonItem *)selectOrderBtn{
+- (UIButton *)selectOrderBtn{
     if (_selectOrderBtn == nil) {
-        UIButton *orderBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-        orderBtn.bounds = CGRectMake(0, 0, 50, 30);
-        [orderBtn setTitle:@"顺序" forState:UIControlStateNormal];
-        [orderBtn setTitle:@"倒序" forState:UIControlStateSelected];
+        _selectOrderBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        _selectOrderBtn.bounds = CGRectMake(0, 0, 50, 30);
+        [_selectOrderBtn setTitle:@"顺序" forState:UIControlStateNormal];
+        [_selectOrderBtn setTitle:@"倒序" forState:UIControlStateSelected];
         
-        [orderBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-        [orderBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateSelected];
+        [_selectOrderBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [_selectOrderBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateSelected];
         
-        orderBtn.titleLabel.font = [UIFont systemFontOfSize:15];
-        [orderBtn addControlClickBlock:^(UIControl *sender) {
+        _selectOrderBtn.titleLabel.font = [UIFont systemFontOfSize:15];
+        __block __weak __typeof(&*self)weakSelf = self;
+        [_selectOrderBtn addControlClickBlock:^(UIControl *sender) {
             sender.selected = !sender.selected;
-            
+            [weakSelf.myTableView reloadData];
         } forControlEvents:UIControlEventTouchUpInside];
-        _selectOrderBtn = [[UIBarButtonItem alloc] initWithCustomView:orderBtn];
     }
     return _selectOrderBtn;
 }

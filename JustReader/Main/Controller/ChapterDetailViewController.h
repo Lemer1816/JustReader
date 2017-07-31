@@ -6,8 +6,10 @@
 //  Copyright © 2017年 Lemonade. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import "BasicViewController.h"
 
-@interface ChapterDetailViewController : UIViewController
+@interface ChapterDetailViewController : BasicViewController
+/** 章节链接 */
+@property (nonatomic, strong) NSString *chapterLink;
 
 @end
