@@ -7,9 +7,9 @@
 //
 
 #import "BasicViewController.h"
+#import "ChapterListModel.h"
 
 @interface ChapterDetailViewController : BasicViewController
-/** 章节链接 */
-@property (nonatomic, strong) NSString *chapterLink;
-
+/** 章节model */
+@property (nonatomic, readwrite, strong) ChapterListInfoModel *selectedChapterModel;
 @end

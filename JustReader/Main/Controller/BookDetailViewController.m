@@ -62,6 +62,7 @@
             NSLog(@"加入书单");
         };
         _myScrollView.bounces = NO;
+        _myScrollView.scrollEnabled = YES;
         _myScrollView.contentSize = CGSizeMake(SCREEN_WIDTH, totalHeight);
     }
     return _myScrollView;

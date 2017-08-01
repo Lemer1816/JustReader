@@ -13,8 +13,10 @@
 #import "NSString+Utils.h"
 
 NSInteger const kPageViewTag = 1000;
-NSInteger const kLeftInset = 8;
-NSInteger const kRightInset = 4;
+NSInteger const kTopInset = 15;
+NSInteger const kLeftInset = 15;
+NSInteger const kBottomInset = 15;
+NSInteger const kRightInset = 15;
 
 #define kChapterBodyWidth (SCREEN_WIDTH - kLeftInset - kRightInset)
 
@@ -35,12 +37,13 @@ NSInteger const kRightInset = 4;
 
 @implementation ChapterDetailViewController
 
+#pragma mark - 生命周期 LifeCircle
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self addBackButton];
     self.navigationItem.title = @"章节详情";
     //获取章节详情
-    [[Network sharedNetwork] getChapterDetailWithChapterLink:self.chapterLink successBlock:^(id responseBody) {
+    [[Network sharedNetwork] getChapterDetailWithChapterLink:self.selectedChapterModel.link successBlock:^(id responseBody) {
         if ([[responseBody objectForKey:@"ok"] boolValue]) {
             self.chapterDetailModel = [ChapterDetailModel parse:[responseBody objectForKey:@"chapter"]];
             [self chapterScrollView];
@@ -48,6 +51,7 @@ NSInteger const kRightInset = 4;
     } failureBlock:^(NSError *error) {
     }];
 }
+#pragma mark - 方法 Methods
 
 #pragma mark - 协议方法 UIPageViewControllerDataSource/Delegate
 - (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerBeforeViewController:(UIViewController *)viewController{
@@ -100,12 +104,14 @@ NSInteger const kRightInset = 4;
             make.edges.equalTo(0);
         }];
         
-        CGFloat height = [NSString heightWithContent:self.chapterDetailModel.body font:self.chapterBodyLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES];
+        CGFloat height = ceil([NSString heightWithContent:[NSString stringWithFormat:@"%@\n%@", self.selectedChapterModel.title, self.chapterDetailModel.body] font:self.chapterBodyLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES]);
+        
         _chapterScrollView.bounces = NO;
-        _chapterScrollView.contentSize = CGSizeMake(kChapterBodyWidth, height);
+        _chapterScrollView.contentSize = CGSizeMake(kChapterBodyWidth, height + kTopInset + kBottomInset);
         [_chapterScrollView addSubview:self.chapterBodyLb];
         [self.chapterBodyLb mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.top.left.equalTo(kLeftInset);
+            make.top.equalTo(kTopInset);
+            make.left.equalTo(kLeftInset);
             make.width.equalTo(kChapterBodyWidth);
             make.height.equalTo(height);
         }];
@@ -115,10 +121,12 @@ NSInteger const kRightInset = 4;
 - (UILabel *)chapterBodyLb{
     if (_chapterBodyLb == nil) {
         _chapterBodyLb = [[UILabel alloc] init];
-        _chapterBodyLb.attributedText = [[NSAttributedString alloc] initWithString:self.chapterDetailModel.body attributes:[NSString attributesDictionaryWithContent:self.chapterDetailModel.body font:[UIFont systemFontOfSize:14] width:kChapterBodyWidth hasFirstLineHeadIndent:YES]];
+        _chapterBodyLb.font = [UIFont systemFontOfSize:17];
+        _chapterBodyLb.attributedText = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@\n%@", self.selectedChapterModel.title, self.chapterDetailModel.body] attributes:[NSString attributesDictionaryWithContent:[NSString stringWithFormat:@"%@\n%@", self.selectedChapterModel.title, self.chapterDetailModel.body] font:_chapterBodyLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES]];
         _chapterBodyLb.textColor = [UIColor blackColor];
-        _chapterBodyLb.font = [UIFont systemFontOfSize:14];
+        
         _chapterBodyLb.numberOfLines = 0;
+        
     }
     return _chapterBodyLb;
 }

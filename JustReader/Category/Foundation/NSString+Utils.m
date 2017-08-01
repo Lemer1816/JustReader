@@ -54,23 +54,26 @@
     NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
     //折行方式
     paragraphStyle.lineBreakMode = NSLineBreakByCharWrapping;
-    //对齐方式
-    paragraphStyle.alignment = NSTextAlignmentLeft;
-    //段落间距
-    paragraphStyle.lineSpacing = 10.0;
+    //对齐方式--左右对齐
+    paragraphStyle.alignment = NSTextAlignmentJustified;
+    //行间距
+    paragraphStyle.lineSpacing = font.lineHeight-10;
     //判断每行最后一个单词是否被截断,数值介于0.0~1.0,越靠近1.0被截断的几率越大
     paragraphStyle.hyphenationFactor = 1.0;
     //首行缩进
     paragraphStyle.firstLineHeadIndent = hasFirstLineHeadIndent ? font.lineHeight*2 : 0.0;
+    //整段缩进(左)
+    paragraphStyle.headIndent = 0.0;
+    //整段缩进(正值--文本所要显示的宽度,负值--右侧缩进)
+    paragraphStyle.tailIndent = 0.0;
     //段落前间距(暂时发现\n存在时生效)
-    paragraphStyle.paragraphSpacingBefore = 0.0;
+    paragraphStyle.paragraphSpacingBefore = font.lineHeight/2-2;
     //段落后间距(暂时发现\n存在时生效)
-    paragraphStyle.paragraphSpacing = 0.0;
-    //行间距(是默认行间距的多少倍)
-    paragraphStyle.lineHeightMultiple = 1.0;
-    paragraphStyle.headIndent = 0;
-    paragraphStyle.tailIndent = 0;
-    NSDictionary *dic = @{NSFontAttributeName:font, NSParagraphStyleAttributeName:paragraphStyle,  NSKernAttributeName:@1.5f};
+    paragraphStyle.paragraphSpacing = font.lineHeight/2-2;
+//    //行间距(是默认行间距的多少倍)
+//    paragraphStyle.lineHeightMultiple = 1.0;
+
+    NSDictionary *dic = @{NSFontAttributeName: font, NSParagraphStyleAttributeName: paragraphStyle,  NSKernAttributeName: @1.5f, NSUnderlineStyleAttributeName: [NSNumber numberWithInteger:NSUnderlineStyleNone]};
     return dic;
 }
 @end

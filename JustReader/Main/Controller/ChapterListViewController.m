@@ -109,9 +109,9 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     NSInteger row = indexPath.row;
-    ChapterListInfoModel *model = self.selectOrderBtn.selected ? [self.chapterDecreasedList objectAtIndex:indexPath.row] : [self.chapterIncreasedList objectAtIndex:indexPath.row];
+    ChapterListInfoModel *model = self.selectOrderBtn.selected ? [self.chapterDecreasedList objectAtIndex:row] : [self.chapterIncreasedList objectAtIndex:row];
     ChapterDetailViewController *chapterDetailVC = [[ChapterDetailViewController alloc] init];
-    chapterDetailVC.chapterLink = model.link;
+    chapterDetailVC.selectedChapterModel = model;
     [self.navigationController pushViewController:chapterDetailVC animated:YES];
 }
 #pragma mark - 懒加载 LazyLoad
