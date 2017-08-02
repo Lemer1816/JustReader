@@ -11,6 +11,7 @@
 #import "ChapterDetailModel.h"
 
 #import "NSString+Utils.h"
+#import "UIView+Frame.h"
 
 NSInteger const kPageViewTag = 1000;
 NSInteger const kTopInset = 15;
@@ -19,12 +20,19 @@ NSInteger const kBottomInset = 15;
 NSInteger const kRightInset = 15;
 
 #define kChapterBodyWidth (SCREEN_WIDTH - kLeftInset - kRightInset)
+#define kChapterBodyHeight (self.view.height - kTopInset - kBottomInset)
 
 @interface ChapterDetailViewController () <UIPageViewControllerDataSource, UIPageViewControllerDelegate>
 /** 数据源 */
 @property (nonatomic, readwrite, strong) ChapterDetailModel *chapterDetailModel;
-/** 书籍内容数组 */
-@property (nonatomic, readwrite, strong) NSMutableArray<UIViewController *> *dataList;
+/** 章节内容数组 */
+@property (nonatomic, readwrite, strong) NSMutableArray *chapterContentList;
+/** 章节内容总高 */
+@property (nonatomic, readwrite, assign) CGFloat totalHeight;
+/** 分页显示基础信息 */
+@property (nonatomic, readwrite, strong) NSMutableDictionary *pageDataDictionary;
+//
+@property (nonatomic, readwrite, strong) NSMutableArray<UIViewController *> *contentVCList;
 /** 章节内容 */
 @property (nonatomic, readwrite, strong) UILabel *chapterBodyLb;
 //
@@ -46,29 +54,38 @@ NSInteger const kRightInset = 15;
     [[Network sharedNetwork] getChapterDetailWithChapterLink:self.selectedChapterModel.link successBlock:^(id responseBody) {
         if ([[responseBody objectForKey:@"ok"] boolValue]) {
             self.chapterDetailModel = [ChapterDetailModel parse:[responseBody objectForKey:@"chapter"]];
-            [self chapterScrollView];
+//            [self chapterScrollView];
+            self.totalHeight = ceil([NSString heightWithContent:[NSString stringWithFormat:@"%@\n%@", self.selectedChapterModel.title, self.chapterDetailModel.body] font:self.chapterBodyLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES]);
+            [self pageVC];
+            
         }
     } failureBlock:^(NSError *error) {
     }];
 }
+- (void)viewDidLayoutSubviews{
+    [super viewDidLayoutSubviews];
+    UIView *pageView = [self.view viewWithTag:kPageViewTag];
+    pageView.frame = self.view.frame;
+}
 #pragma mark - 方法 Methods
+
 
 #pragma mark - 协议方法 UIPageViewControllerDataSource/Delegate
 - (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerBeforeViewController:(UIViewController *)viewController{
-    NSInteger index = [self.dataList indexOfObject:viewController];
+    NSInteger index = [self.contentVCList indexOfObject:viewController];
     index--;
     if (index < 0) {
-        return nil;
+        return self.contentVCList.lastObject;
     }
-    return [self.dataList objectAtIndex:index];
+    return [self.contentVCList objectAtIndex:index];
 }
 - (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerAfterViewController:(UIViewController *)viewController{
-    NSInteger index = [self.dataList indexOfObject:viewController];
+    NSInteger index = [self.contentVCList indexOfObject:viewController];
     index++;
-    if (index == self.dataList.count) {
-        return nil;
+    if (index >= self.contentVCList.count) {
+        return self.contentVCList.firstObject;
     }
-    return [self.dataList objectAtIndex:index];
+    return [self.contentVCList objectAtIndex:index];
     
 }
 #pragma mark - 懒加载 LazyLoad
@@ -78,18 +95,83 @@ NSInteger const kRightInset = 15;
     }
     return _chapterDetailModel;
 }
-- (NSMutableArray<UIViewController *> *)dataList{
-    if (_dataList == nil) {
-        _dataList = [NSMutableArray array];
-        
+- (NSMutableArray *)chapterContentList{
+    if (_chapterContentList == nil) {
+        _chapterContentList = [NSMutableArray array];
     }
-    return _dataList;
+    return _chapterContentList;
+}
+- (NSMutableDictionary *)pageDataDictionary{
+    if (_pageDataDictionary == nil) {
+        _pageDataDictionary = [NSMutableDictionary dictionary];
+        //所要显示的文本
+        NSString *chapterContent = [NSString stringWithFormat:@"%@\n%@", self.selectedChapterModel.title, self.chapterDetailModel.body];
+        //理想页码数(整除)
+        NSInteger referPageNum = floor(self.totalHeight/kChapterBodyHeight);
+        //理想每页字符数
+        NSInteger referCharacterNumPerPage = floor(chapterContent.length/referPageNum) + 50;
+        NSLog(@"referCharacterNumPerPage: %ld", referCharacterNumPerPage);
+        //游标
+        NSInteger location = 0;
+        //真实每页字符数
+        NSInteger realCharacterNumPerPage = referCharacterNumPerPage;
+        
+        while ((location + referCharacterNumPerPage) < chapterContent.length) {
+            
+            CGFloat characterHeightPerPage = 0;
+            realCharacterNumPerPage = referCharacterNumPerPage;
+            NSRange range = NSMakeRange(location, referCharacterNumPerPage);
+            do {
+                range = NSMakeRange(location, realCharacterNumPerPage);
+                characterHeightPerPage = [NSString heightWithContent:[chapterContent substringWithRange:range] font:self.chapterBodyLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES];
+                realCharacterNumPerPage--;
+            } while (characterHeightPerPage > kChapterBodyHeight);
+            realCharacterNumPerPage++;
+            
+            range = NSMakeRange(location, realCharacterNumPerPage);
+            [self.chapterContentList addObject:[chapterContent substringWithRange:range]];
+            NSLog(@"location: %ld, length: %ld", location, [chapterContent substringWithRange:range].length);
+            location += realCharacterNumPerPage;
+            
+        }
+        [self.chapterContentList addObject:[chapterContent substringFromIndex:location]];
+        NSLog(@"location: %ld, length: %ld", location, [chapterContent substringFromIndex:location].length);
+
+    }
+    return _pageDataDictionary;
+}
+- (NSMutableArray<UIViewController *> *)contentVCList{
+    if (_contentVCList == nil) {
+        _contentVCList = [NSMutableArray array];
+    }
+    return _contentVCList;
 }
 - (UIPageViewController *)pageVC{
     if (_pageVC == nil) {
         _pageVC = [[UIPageViewController alloc] initWithTransitionStyle:UIPageViewControllerTransitionStyleScroll navigationOrientation:UIPageViewControllerNavigationOrientationHorizontal options:nil];
         [self.view addSubview:_pageVC.view];
         _pageVC.view.tag = kPageViewTag;
+        [self pageDataDictionary];
+        
+        for (NSString *contentPart in self.chapterContentList) {
+            UIViewController *vc = [[UIViewController alloc] init];
+            UILabel *contentPartLb = [[UILabel alloc] init];
+            [vc.view addSubview:contentPartLb];
+            [contentPartLb mas_makeConstraints:^(MASConstraintMaker *make) {
+                make.top.left.equalTo(kLeftInset);
+                make.bottom.right.equalTo(-kRightInset);
+            }];
+            contentPartLb.font = [UIFont systemFontOfSize:17];
+            contentPartLb.attributedText = [[NSAttributedString alloc] initWithString:contentPart attributes:[NSString attributesDictionaryWithContent:contentPart font:contentPartLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES]];
+            contentPartLb.textColor = [UIColor blackColor];
+            contentPartLb.backgroundColor = TEXT_LIGHT_COLOR;
+            contentPartLb.numberOfLines = 0;
+            
+            [self.contentVCList addObject:vc];
+        }
+        [_pageVC setViewControllers:@[[self.contentVCList objectAtIndex:0]] direction:UIPageViewControllerNavigationDirectionForward animated:YES completion:nil];
+    
+        
         _pageVC.dataSource = self;
         _pageVC.delegate = self;
         
@@ -104,16 +186,16 @@ NSInteger const kRightInset = 15;
             make.edges.equalTo(0);
         }];
         
-        CGFloat height = ceil([NSString heightWithContent:[NSString stringWithFormat:@"%@\n%@", self.selectedChapterModel.title, self.chapterDetailModel.body] font:self.chapterBodyLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES]);
+        
         
         _chapterScrollView.bounces = NO;
-        _chapterScrollView.contentSize = CGSizeMake(kChapterBodyWidth, height + kTopInset + kBottomInset);
+        _chapterScrollView.contentSize = CGSizeMake(kChapterBodyWidth, self.totalHeight + kTopInset + kBottomInset);
         [_chapterScrollView addSubview:self.chapterBodyLb];
         [self.chapterBodyLb mas_makeConstraints:^(MASConstraintMaker *make) {
             make.top.equalTo(kTopInset);
             make.left.equalTo(kLeftInset);
             make.width.equalTo(kChapterBodyWidth);
-            make.height.equalTo(height);
+            make.height.equalTo(self.totalHeight);
         }];
     }
     return _chapterScrollView;
