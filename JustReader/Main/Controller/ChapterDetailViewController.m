@@ -105,12 +105,11 @@ NSInteger const kRightInset = 15;
     if (_pageDataDictionary == nil) {
         _pageDataDictionary = [NSMutableDictionary dictionary];
         //所要显示的文本
-        NSString *chapterContent = [NSString stringWithFormat:@"%@\n%@", self.selectedChapterModel.title, self.chapterDetailModel.body];
+        NSMutableString *chapterContent = [NSMutableString stringWithString:[NSString stringWithFormat:@"%@\n%@", self.selectedChapterModel.title, self.chapterDetailModel.body]];
         //理想页码数(整除)
         NSInteger referPageNum = floor(self.totalHeight/kChapterBodyHeight);
         //理想每页字符数
         NSInteger referCharacterNumPerPage = floor(chapterContent.length/referPageNum) + 50;
-        NSLog(@"referCharacterNumPerPage: %ld", referCharacterNumPerPage);
         //游标
         NSInteger location = 0;
         //真实每页字符数
@@ -121,8 +120,13 @@ NSInteger const kRightInset = 15;
             CGFloat characterHeightPerPage = 0;
             realCharacterNumPerPage = referCharacterNumPerPage;
             NSRange range = NSMakeRange(location, referCharacterNumPerPage);
+            //通过循环计算实际高度,不断缩小与理想高度的差值,知道达到临界值,刚好小于理想高度值
             do {
                 range = NSMakeRange(location, realCharacterNumPerPage);
+                //如果起始字符为换行符,则删去
+                if ([[chapterContent substringWithRange:range] hasPrefix:@"\n"]) {
+                    [chapterContent deleteCharactersInRange:NSMakeRange(location, 1)];
+                }
                 characterHeightPerPage = [NSString heightWithContent:[chapterContent substringWithRange:range] font:self.chapterBodyLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES];
                 realCharacterNumPerPage--;
             } while (characterHeightPerPage > kChapterBodyHeight);
@@ -130,13 +134,14 @@ NSInteger const kRightInset = 15;
             
             range = NSMakeRange(location, realCharacterNumPerPage);
             [self.chapterContentList addObject:[chapterContent substringWithRange:range]];
-            NSLog(@"location: %ld, length: %ld", location, [chapterContent substringWithRange:range].length);
             location += realCharacterNumPerPage;
             
         }
+        //如果起始字符为换行符,则删去
+        if ([[chapterContent substringFromIndex:location] hasPrefix:@"\n"]) {
+            [chapterContent deleteCharactersInRange:NSMakeRange(location, 1)];
+        }
         [self.chapterContentList addObject:[chapterContent substringFromIndex:location]];
-        NSLog(@"location: %ld, length: %ld", location, [chapterContent substringFromIndex:location].length);
-
     }
     return _pageDataDictionary;
 }
@@ -155,16 +160,18 @@ NSInteger const kRightInset = 15;
         
         for (NSString *contentPart in self.chapterContentList) {
             UIViewController *vc = [[UIViewController alloc] init];
+            vc.view.backgroundColor = TEXT_WHITE_COLOR;
+            
             UILabel *contentPartLb = [[UILabel alloc] init];
             [vc.view addSubview:contentPartLb];
             [contentPartLb mas_makeConstraints:^(MASConstraintMaker *make) {
                 make.top.left.equalTo(kLeftInset);
-                make.bottom.right.equalTo(-kRightInset);
+                make.right.equalTo(-kRightInset);
             }];
             contentPartLb.font = [UIFont systemFontOfSize:17];
             contentPartLb.attributedText = [[NSAttributedString alloc] initWithString:contentPart attributes:[NSString attributesDictionaryWithContent:contentPart font:contentPartLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES]];
-            contentPartLb.textColor = [UIColor blackColor];
-            contentPartLb.backgroundColor = TEXT_LIGHT_COLOR;
+            contentPartLb.textColor = TEXT_MID_COLOR;
+//            contentPartLb.backgroundColor = TEXT_LIGHT_COLOR;
             contentPartLb.numberOfLines = 0;
             
             [self.contentVCList addObject:vc];
@@ -185,8 +192,6 @@ NSInteger const kRightInset = 15;
         [_chapterScrollView mas_makeConstraints:^(MASConstraintMaker *make) {
             make.edges.equalTo(0);
         }];
-        
-        
         
         _chapterScrollView.bounces = NO;
         _chapterScrollView.contentSize = CGSizeMake(kChapterBodyWidth, self.totalHeight + kTopInset + kBottomInset);
