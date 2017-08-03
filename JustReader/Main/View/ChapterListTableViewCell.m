@@ -13,6 +13,7 @@
 - (void)awakeFromNib {
     [super awakeFromNib];
     // Initialization code
+//    self.backgroundColor = TEXT_WHITE_COLOR;
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {

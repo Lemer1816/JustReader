@@ -67,9 +67,9 @@
     //整段缩进(正值--文本所要显示的宽度,负值--右侧缩进)
     paragraphStyle.tailIndent = 0.0;
     //段落前间距(暂时发现\n存在时生效)
-    paragraphStyle.paragraphSpacingBefore = font.lineHeight/2-2;
+    paragraphStyle.paragraphSpacingBefore = 0;
     //段落后间距(暂时发现\n存在时生效)
-    paragraphStyle.paragraphSpacing = font.lineHeight/2-2;
+    paragraphStyle.paragraphSpacing = font.lineHeight-4;
 //    //行间距(是默认行间距的多少倍)
 //    paragraphStyle.lineHeightMultiple = 1.0;
 
