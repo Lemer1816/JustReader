@@ -34,9 +34,8 @@
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     manager.requestSerializer.timeoutInterval = 10;
     manager.responseSerializer.acceptableContentTypes = [NSSet setWithArray:@[@"text/html", @"text/plain", @"text/json", @"text/javascript", @"application/json"]];
-    
-    
-    NSLog(@"请求地址: %@", path);
+    //缓存策略
+    manager.requestSerializer.cachePolicy = NSURLRequestReturnCacheDataElseLoad;
     
     if (requestMethod == RequestMethodGet) {    //GET请求
         return [manager GET:path parameters:parameters progress:downloadProgress success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {

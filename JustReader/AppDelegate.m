@@ -25,8 +25,10 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     self.window.rootViewController = [[HomePageViewController alloc] init];
-    
-    
+    NSLog(@"文件路径: %@", kPathDocument);
+    //分配缓存空间
+    NSURLCache *myCache = [[NSURLCache alloc] initWithMemoryCapacity:5*1024*1024 diskCapacity:20*1024*1024 diskPath:nil];
+    [NSURLCache setSharedURLCache:myCache];
     return YES;
 }
 

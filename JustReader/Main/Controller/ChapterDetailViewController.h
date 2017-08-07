@@ -10,6 +10,8 @@
 #import "ChapterListModel.h"
 
 @interface ChapterDetailViewController : BasicViewController
-/** 章节model */
-@property (nonatomic, readwrite, strong) ChapterListInfoModel *selectedChapterModel;
+/** 章节数组(顺序) */
+@property (nonatomic, readwrite, strong) NSArray<ChapterListInfoModel *> *chapterList;
+/** 所选章节model */
+@property (nonatomic, readwrite, strong) ChapterListInfoModel *selectedChapterInfoModel;
 @end

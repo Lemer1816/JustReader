@@ -66,13 +66,13 @@
         self.chapterIncreasedList = model.chapters;
         NSOperationQueue *queue = [[NSOperationQueue alloc] init];
         [queue addOperationWithBlock:^{
-            NSLog(@"循环开始");
+//            NSLog(@"循环开始");
             NSMutableArray *tmpArr = [NSMutableArray array];
             for (int i = (int)self.chapterIncreasedList.count-1; i >= 0; i--) {
                 [tmpArr addObject:[self.chapterIncreasedList objectAtIndex:i]];
             }
             self.chapterDecreasedList = [tmpArr copy];
-            NSLog(@"循环结束");
+//            NSLog(@"循环结束");
         }];
         [self.myTableView reloadData];
     } failureBlock:^(NSError *error) {
@@ -109,9 +109,9 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     NSInteger row = indexPath.row;
-    ChapterListInfoModel *model = self.selectOrderBtn.selected ? [self.chapterDecreasedList objectAtIndex:row] : [self.chapterIncreasedList objectAtIndex:row];
     ChapterDetailViewController *chapterDetailVC = [[ChapterDetailViewController alloc] init];
-    chapterDetailVC.selectedChapterModel = model;
+    chapterDetailVC.chapterList = self.chapterIncreasedList;
+    chapterDetailVC.selectedChapterInfoModel = self.selectOrderBtn.selected ? [self.chapterDecreasedList objectAtIndex:row] : [self.chapterIncreasedList objectAtIndex:row];
     [self.navigationController pushViewController:chapterDetailVC animated:YES];
 }
 #pragma mark - 懒加载 LazyLoad
