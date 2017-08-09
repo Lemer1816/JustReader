@@ -40,6 +40,18 @@
         return [NSString stringWithFormat:@"%ld.%ld.%ld", year, month, day];
     }
 }
+
++ (NSString *)stringCovertedByFullWidthString:(NSString *)fullWidthString{
+    NSMutableString *convertedString = [fullWidthString mutableCopy];
+    CFStringTransform((CFMutableStringRef)convertedString, NULL, kCFStringTransformFullwidthHalfwidth, false);
+    return [convertedString copy];
+}
+
+
+
+
+
+
 + (CGFloat)heightWithContent:(NSString *)content font:(UIFont *)font width:(CGFloat)width hasFirstLineHeadIndent:(BOOL)hasFirstLineHeadIndent{
     
     NSDictionary *dic = [NSString attributesDictionaryWithContent:content font:font width:width hasFirstLineHeadIndent:hasFirstLineHeadIndent];
@@ -59,7 +71,7 @@
     //行间距
     paragraphStyle.lineSpacing = font.lineHeight-10;
     //判断每行最后一个单词是否被截断,数值介于0.0~1.0,越靠近1.0被截断的几率越大
-    paragraphStyle.hyphenationFactor = 1.0;
+    paragraphStyle.hyphenationFactor = 0.3;
     //首行缩进
     paragraphStyle.firstLineHeadIndent = hasFirstLineHeadIndent ? font.lineHeight*2 : 0.0;
     //整段缩进(左)

@@ -76,11 +76,13 @@ static NSInteger const kRightInset = 15;
     [self addBackButton];
     self.navigationItem.title = @"章节详情";
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:self.selectBtn];
+//    [self.navigationController setNavigationBarHidden:YES animated:YES];
     
     [self getCurrentChapterDetail];
 }
 - (void)viewDidLayoutSubviews{
     [super viewDidLayoutSubviews];
+
 }
 #pragma mark - 方法 Methods
 //得到当前章的数据
@@ -88,11 +90,21 @@ static NSInteger const kRightInset = 15;
     [[Network sharedNetwork] getChapterDetailWithChapterLink:self.selectedChapterInfoModel.link successBlock:^(id responseBody) {
         if ([[responseBody objectForKey:@"ok"] boolValue]) {
             self.currentChapterDetailModel = [ChapterDetailModel parse:[responseBody objectForKey:@"chapter"]];
+            self.currentChapterDetailModel.body = [NSString stringCovertedByFullWidthString:self.currentChapterDetailModel.body];
             self.currentChapterContentHeight = ceil([NSString heightWithContent:[NSString stringWithFormat:@"%@\n%@", self.currentChapterDetailModel.title, self.currentChapterDetailModel.body] font:self.chapterBodyLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES]);
 //            [self chapterScrollView];
-            [self getPreChapterDetail];
-            [self getNextChapterDetail];
+            
+            if (self.selectedChapterIndex == 0) {   //如果是第一章
+                [self getNextChapterDetail];
+            } else if (self.selectedChapterIndex == self.chapterList.count-1) {     //如果是最后一章
+                [self getPreChapterDetail];
+            } else {
+                [self getPreChapterDetail];
+                [self getNextChapterDetail];
+
+            }
             [self pageVC];
+            
         }
     } failureBlock:^(NSError *error) {
         ;
@@ -104,38 +116,38 @@ static NSInteger const kRightInset = 15;
     [[Network sharedNetwork] getChapterDetailWithChapterLink:link successBlock:^(id responseBody) {
         if ([[responseBody objectForKey:@"ok"] boolValue]) {
             self.preChapterDetailModel = [ChapterDetailModel parse:[responseBody objectForKey:@"chapter"]];
+            //全角转半角
+            self.preChapterDetailModel.body = [NSString stringCovertedByFullWidthString:self.preChapterDetailModel.body];
             self.preChapterContentHeight = ceil([NSString heightWithContent:[NSString stringWithFormat:@"%@\n%@", self.preChapterDetailModel.title, self.preChapterDetailModel.body] font:self.chapterBodyLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES]);
             [self getPreChapterPageData];
-            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                for (NSString *contentPart in self.preChapterContentList) {
-                    UIViewController *vc = [[UIViewController alloc] init];
-                    vc.view.backgroundColor = TEXT_WHITE_COLOR;
-                    
-                    UILabel *contentPartLb = [[UILabel alloc] init];
-                    [vc.view addSubview:contentPartLb];
-                    [contentPartLb mas_makeConstraints:^(MASConstraintMaker *make) {
-                        make.top.left.equalTo(kLeftInset);
-                        make.right.equalTo(-kRightInset);
-                        //                make.height.lessThanOrEqualTo(kChapterBodyHeight);
-                    }];
-                    contentPartLb.font = [UIFont systemFontOfSize:17];
-                    contentPartLb.attributedText = [[NSAttributedString alloc] initWithString:contentPart attributes:[NSString attributesDictionaryWithContent:contentPart font:contentPartLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES]];
-                    contentPartLb.textColor = TEXT_MID_COLOR;
-                    //            contentPartLb.backgroundColor = TEXT_LIGHT_COLOR;
-                    contentPartLb.numberOfLines = 0;
-                    UILabel *pageIndexLb = [[UILabel alloc] init];
-                    [vc.view addSubview:pageIndexLb];
-                    [pageIndexLb mas_makeConstraints:^(MASConstraintMaker *make) {
-                        make.bottom.right.equalTo(-kRightInset);
-                    }];
-                    NSInteger chapterIndex = [self.chapterList indexOfObject:self.selectedChapterInfoModel];
-                    pageIndexLb.text = [NSString stringWithFormat:@"%@  %ld/%ld", [self.chapterList objectAtIndex:chapterIndex-1].title, [self.preChapterContentList indexOfObject:contentPart]+1, self.preChapterContentList.count];
-                    pageIndexLb.font = [UIFont systemFontOfSize:14];
-                    pageIndexLb.textColor = TEXT_MID_COLOR;
-                    
-                    [self.preChapterContentVCList addObject:vc];
-                }
-            }];
+            for (NSString *contentPart in self.preChapterContentList) {
+                UIViewController *vc = [[UIViewController alloc] init];
+                vc.view.backgroundColor = TEXT_WHITE_COLOR;
+                
+                UILabel *contentPartLb = [[UILabel alloc] init];
+                [vc.view addSubview:contentPartLb];
+                [contentPartLb mas_makeConstraints:^(MASConstraintMaker *make) {
+                    make.top.left.equalTo(kLeftInset);
+                    make.right.equalTo(-kRightInset);
+                    //                make.height.lessThanOrEqualTo(kChapterBodyHeight);
+                }];
+                contentPartLb.font = [UIFont systemFontOfSize:17];
+                contentPartLb.attributedText = [[NSAttributedString alloc] initWithString:contentPart attributes:[NSString attributesDictionaryWithContent:contentPart font:contentPartLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES]];
+                contentPartLb.textColor = TEXT_MID_COLOR;
+                //            contentPartLb.backgroundColor = TEXT_LIGHT_COLOR;
+                contentPartLb.numberOfLines = 0;
+                UILabel *pageIndexLb = [[UILabel alloc] init];
+                [vc.view addSubview:pageIndexLb];
+                [pageIndexLb mas_makeConstraints:^(MASConstraintMaker *make) {
+                    make.bottom.right.equalTo(-kRightInset);
+                }];
+                NSInteger chapterIndex = [self.chapterList indexOfObject:self.selectedChapterInfoModel];
+                pageIndexLb.text = [NSString stringWithFormat:@"%@  %ld/%ld", [self.chapterList objectAtIndex:chapterIndex-1].title, [self.preChapterContentList indexOfObject:contentPart]+1, self.preChapterContentList.count];
+                pageIndexLb.font = [UIFont systemFontOfSize:14];
+                pageIndexLb.textColor = TEXT_MID_COLOR;
+                
+                [self.preChapterContentVCList addObject:vc];
+            }
         }
     } failureBlock:^(NSError *error) {
         ;
@@ -145,11 +157,13 @@ static NSInteger const kRightInset = 15;
 - (void)getNextChapterDetail{
     NSString *link = [self.chapterList objectAtIndex:self.selectedChapterIndex+1].link;
     [[Network sharedNetwork] getChapterDetailWithChapterLink:link successBlock:^(id responseBody) {
-        if ([[responseBody objectForKey:@"ok"] boolValue]) {
-            self.nextChapterDetailModel = [ChapterDetailModel parse:[responseBody objectForKey:@"chapter"]];
-            self.nextChapterContentHeight = ceil([NSString heightWithContent:[NSString stringWithFormat:@"%@\n%@", self.nextChapterDetailModel.title, self.nextChapterDetailModel.body] font:self.chapterBodyLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES]);
-            [self getNextChapterPageData];
-            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        [[NSOperationQueue new] addOperationWithBlock:^{
+            if ([[responseBody objectForKey:@"ok"] boolValue]) {
+                self.nextChapterDetailModel = [ChapterDetailModel parse:[responseBody objectForKey:@"chapter"]];
+                //全角转半角
+                self.nextChapterDetailModel.body = [NSString stringCovertedByFullWidthString:self.nextChapterDetailModel.body];
+                self.nextChapterContentHeight = ceil([NSString heightWithContent:[NSString stringWithFormat:@"%@\n%@", self.nextChapterDetailModel.title, self.nextChapterDetailModel.body] font:self.chapterBodyLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES]);
+                [self getNextChapterPageData];
                 [self.nextChapterContentVCList removeAllObjects];
                 for (NSString *contentPart in self.nextChapterContentList) {
                     UIViewController *vc = [[UIViewController alloc] init];
@@ -179,8 +193,8 @@ static NSInteger const kRightInset = 15;
                     
                     [self.nextChapterContentVCList addObject:vc];
                 }
-            }];
-        }
+            }
+        }];
     } failureBlock:^(NSError *error) {
         ;
     }];
@@ -190,167 +204,101 @@ static NSInteger const kRightInset = 15;
     [self.currentChapterContentList removeAllObjects];
     //所要显示的文本
     NSMutableString *chapterContent = [NSMutableString stringWithString:[NSString stringWithFormat:@"%@\n%@", self.currentChapterDetailModel.title, self.currentChapterDetailModel.body]];
-    //理想页码数(整除)
-    NSInteger referPageNum = floor(self.currentChapterContentHeight/kChapterBodyHeight);
-    //理想每页字符数
-    NSInteger referCharacterNumPerPage = floor(chapterContent.length/referPageNum);
-    //游标
-    NSInteger location = 0;
-    //真实每页字符数
-    NSInteger realCharacterNumPerPage = referCharacterNumPerPage;
-    
-    while ((location + referCharacterNumPerPage) < chapterContent.length) {
-        
-        CGFloat characterHeightPerPage = 0;
-        realCharacterNumPerPage = referCharacterNumPerPage;
-        NSRange range = NSMakeRange(location, realCharacterNumPerPage);
-        //如果起始字符为换行符,则删去
-        if ([[chapterContent substringWithRange:range] hasPrefix:@"\n"]) {
-            [chapterContent deleteCharactersInRange:NSMakeRange(location, 1)];
-        }
-        range = NSMakeRange(location, realCharacterNumPerPage);
-        //            NSLog(@"%@", [chapterContent substringWithRange:range]);
-        //            NSLog(@"%f", kChapterBodyHeight);
-        characterHeightPerPage = [NSString heightWithContent:[chapterContent substringWithRange:range] font:self.chapterBodyLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES];
-        if (characterHeightPerPage < kChapterBodyHeight) {
-            while (characterHeightPerPage < kChapterBodyHeight) {
-                realCharacterNumPerPage++;
-                range = NSMakeRange(location, realCharacterNumPerPage);
-                characterHeightPerPage = [NSString heightWithContent:[chapterContent substringWithRange:range] font:self.chapterBodyLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES];
-                //                    NSLog(@"%@", [chapterContent substringWithRange:range]);
-            }
-            realCharacterNumPerPage--;
-        } else if (characterHeightPerPage > kChapterBodyHeight) {
-            while (characterHeightPerPage > kChapterBodyHeight) {
-                realCharacterNumPerPage--;
-                range = NSMakeRange(location, realCharacterNumPerPage);
-                characterHeightPerPage = [NSString heightWithContent:[chapterContent substringWithRange:range] font:self.chapterBodyLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES];
-                //                    NSLog(@"%@", [chapterContent substringWithRange:range]);
-            }
-        } else {
-            
-        }
-        range = NSMakeRange(location, realCharacterNumPerPage);
-        [self.currentChapterContentList addObject:[chapterContent substringWithRange:range]];
-        location += realCharacterNumPerPage;
-    }
-    //如果起始字符为换行符,则删去
-    if ([[chapterContent substringFromIndex:location] hasPrefix:@"\n"]) {
-        [chapterContent deleteCharactersInRange:NSMakeRange(location, 1)];
-    }
-    [self.currentChapterContentList addObject:[chapterContent substringFromIndex:location]];
+    //根据文本内容和总高得到分页文本数组
+    self.currentChapterContentList = [self mutableArrayCreatedByContent:chapterContent height:self.currentChapterContentHeight];
 }
 //得到前一章节分页数据
 - (void)getPreChapterPageData{
     [self.preChapterContentList removeAllObjects];
     //所要显示的文本
     NSMutableString *chapterContent = [NSMutableString stringWithString:[NSString stringWithFormat:@"%@\n%@", self.preChapterDetailModel.title, self.preChapterDetailModel.body]];
-    //理想页码数(整除)
-    NSInteger referPageNum = floor(self.preChapterContentHeight/kChapterBodyHeight);
-    //理想每页字符数
-    NSInteger referCharacterNumPerPage = floor(chapterContent.length/referPageNum);
-    //游标
-    NSInteger location = 0;
-    //真实每页字符数
-    NSInteger realCharacterNumPerPage = referCharacterNumPerPage;
-    
-    while ((location + referCharacterNumPerPage) < chapterContent.length) {
-        
-        CGFloat characterHeightPerPage = 0;
-        realCharacterNumPerPage = referCharacterNumPerPage;
-        NSRange range = NSMakeRange(location, realCharacterNumPerPage);
-        //如果起始字符为换行符,则删去
-        if ([[chapterContent substringWithRange:range] hasPrefix:@"\n"]) {
-            [chapterContent deleteCharactersInRange:NSMakeRange(location, 1)];
-        }
-        range = NSMakeRange(location, realCharacterNumPerPage);
-        //            NSLog(@"%@", [chapterContent substringWithRange:range]);
-        //            NSLog(@"%f", kChapterBodyHeight);
-        characterHeightPerPage = [NSString heightWithContent:[chapterContent substringWithRange:range] font:self.chapterBodyLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES];
-        if (characterHeightPerPage < kChapterBodyHeight) {
-            while (characterHeightPerPage < kChapterBodyHeight) {
-                realCharacterNumPerPage++;
-                range = NSMakeRange(location, realCharacterNumPerPage);
-                characterHeightPerPage = [NSString heightWithContent:[chapterContent substringWithRange:range] font:self.chapterBodyLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES];
-                //                    NSLog(@"%@", [chapterContent substringWithRange:range]);
-            }
-            realCharacterNumPerPage--;
-        } else if (characterHeightPerPage > kChapterBodyHeight) {
-            while (characterHeightPerPage > kChapterBodyHeight) {
-                realCharacterNumPerPage--;
-                range = NSMakeRange(location, realCharacterNumPerPage);
-                characterHeightPerPage = [NSString heightWithContent:[chapterContent substringWithRange:range] font:self.chapterBodyLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES];
-                //                    NSLog(@"%@", [chapterContent substringWithRange:range]);
-            }
-        } else {
-            
-        }
-        range = NSMakeRange(location, realCharacterNumPerPage);
-        [self.preChapterContentList addObject:[chapterContent substringWithRange:range]];
-        location += realCharacterNumPerPage;
-    }
-    //如果起始字符为换行符,则删去
-    if ([[chapterContent substringFromIndex:location] hasPrefix:@"\n"]) {
-        [chapterContent deleteCharactersInRange:NSMakeRange(location, 1)];
-    }
-    [self.preChapterContentList addObject:[chapterContent substringFromIndex:location]];
+    //根据文本内容和总高得到分页文本数组
+    self.preChapterContentList = [self mutableArrayCreatedByContent:chapterContent height:self.preChapterContentHeight];
 }
 //得到后一章节分页数据
 - (void)getNextChapterPageData{
     [self.nextChapterContentList removeAllObjects];
     //所要显示的文本
     NSMutableString *chapterContent = [NSMutableString stringWithString:[NSString stringWithFormat:@"%@\n%@", self.nextChapterDetailModel.title, self.nextChapterDetailModel.body]];
+    //根据文本内容和总高得到分页文本数组
+    self.nextChapterContentList = [self mutableArrayCreatedByContent:chapterContent height:self.nextChapterContentHeight];
+    
+}
+- (NSMutableArray *)mutableArrayCreatedByContent:(NSMutableString *)content height:(CGFloat)height{
+    NSMutableArray *contentList = [NSMutableArray array];
     //理想页码数(整除)
-    NSInteger referPageNum = floor(self.nextChapterContentHeight/kChapterBodyHeight);
+    NSInteger referPageNum = floor(height/kChapterBodyHeight);
     //理想每页字符数
-    NSInteger referCharacterNumPerPage = floor(chapterContent.length/referPageNum);
+    NSInteger referCharacterNumPerPage = floor(content.length/referPageNum);
     //游标
     NSInteger location = 0;
-    //真实每页字符数
-    NSInteger realCharacterNumPerPage = referCharacterNumPerPage;
-    
-    while ((location + referCharacterNumPerPage) < chapterContent.length) {
+
+    while (location < content.length) {
         
         CGFloat characterHeightPerPage = 0;
-        realCharacterNumPerPage = referCharacterNumPerPage;
-        NSRange range = NSMakeRange(location, realCharacterNumPerPage);
+        //真实每页字符数
+        NSInteger realCharacterNumPerPage = referCharacterNumPerPage;
+        //文本范围
+        NSRange range;
         //如果起始字符为换行符,则删去
-        if ([[chapterContent substringWithRange:range] hasPrefix:@"\n"]) {
-            [chapterContent deleteCharactersInRange:NSMakeRange(location, 1)];
+        if ([[content substringFromIndex:location] hasPrefix:@"\n"]) {
+            [content deleteCharactersInRange:NSMakeRange(location, 1)];
         }
-        range = NSMakeRange(location, realCharacterNumPerPage);
-        //            NSLog(@"%@", [chapterContent substringWithRange:range]);
-        //            NSLog(@"%f", kChapterBodyHeight);
-        characterHeightPerPage = [NSString heightWithContent:[chapterContent substringWithRange:range] font:self.chapterBodyLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES];
-        if (characterHeightPerPage < kChapterBodyHeight) {
-            while (characterHeightPerPage < kChapterBodyHeight) {
-                realCharacterNumPerPage++;
-                range = NSMakeRange(location, realCharacterNumPerPage);
-                characterHeightPerPage = [NSString heightWithContent:[chapterContent substringWithRange:range] font:self.chapterBodyLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES];
-                //                    NSLog(@"%@", [chapterContent substringWithRange:range]);
-            }
-            realCharacterNumPerPage--;
-        } else if (characterHeightPerPage > kChapterBodyHeight) {
-            while (characterHeightPerPage > kChapterBodyHeight) {
+        if ((location + realCharacterNumPerPage) < content.length) {
+            //文本范围
+            range = NSMakeRange(location, realCharacterNumPerPage);
+            //            NSLog(@"%@", [chapterContent substringWithRange:range]);
+//            NSLog(@"%f", kChapterBodyHeight);
+            characterHeightPerPage = [NSString heightWithContent:[content substringWithRange:range] font:self.chapterBodyLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES];
+            if (characterHeightPerPage < kChapterBodyHeight) {
+                while (characterHeightPerPage < kChapterBodyHeight) {
+                    realCharacterNumPerPage++;
+                    if (location + realCharacterNumPerPage > content.length) {
+                        break;
+                    }
+                    range = NSMakeRange(location, realCharacterNumPerPage);
+                    characterHeightPerPage = [NSString heightWithContent:[content substringWithRange:range] font:self.chapterBodyLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES];
+                    //                    NSLog(@"%@", [chapterContent substringWithRange:range]);
+                }
                 realCharacterNumPerPage--;
-                range = NSMakeRange(location, realCharacterNumPerPage);
-                characterHeightPerPage = [NSString heightWithContent:[chapterContent substringWithRange:range] font:self.chapterBodyLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES];
-                //                    NSLog(@"%@", [chapterContent substringWithRange:range]);
+            } else if (characterHeightPerPage > kChapterBodyHeight) {
+                while (characterHeightPerPage > kChapterBodyHeight) {
+                    realCharacterNumPerPage--;
+                    range = NSMakeRange(location, realCharacterNumPerPage);
+                    characterHeightPerPage = [NSString heightWithContent:[content substringWithRange:range] font:self.chapterBodyLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES];
+                    //                    NSLog(@"%@", [chapterContent substringWithRange:range]);
+                }
+            } else {
+                
             }
+            range = NSMakeRange(location, realCharacterNumPerPage);
+            [contentList addObject:[content substringWithRange:range]];
+            location += realCharacterNumPerPage;
         } else {
-            
+            //对于最后一段文字做特殊处理
+            characterHeightPerPage = [NSString heightWithContent:[content  substringFromIndex:location] font:self.chapterBodyLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES];
+            if (characterHeightPerPage <= kChapterBodyHeight) {
+                //如果最后一段文字的高度小于等于给定高度,皆大欢喜,加到数组里就行
+                [contentList addObject:[content substringFromIndex:location]];
+                location = content.length;
+            } else {
+                realCharacterNumPerPage = content.length - location;
+                while (characterHeightPerPage > kChapterBodyHeight) {
+                    realCharacterNumPerPage--;
+                    range = NSMakeRange(location, realCharacterNumPerPage);
+                    characterHeightPerPage = [NSString heightWithContent:[content substringWithRange:range] font:self.chapterBodyLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES];
+                    //                    NSLog(@"%@", [chapterContent substringWithRange:range]);
+                }
+                range = NSMakeRange(location, realCharacterNumPerPage);
+                [contentList addObject:[content substringWithRange:range]];
+                location += realCharacterNumPerPage;
+            }
         }
-        range = NSMakeRange(location, realCharacterNumPerPage);
-        [self.nextChapterContentList addObject:[chapterContent substringWithRange:range]];
-        location += realCharacterNumPerPage;
+    
     }
-    //如果起始字符为换行符,则删去
-    if ([[chapterContent substringFromIndex:location] hasPrefix:@"\n"]) {
-        [chapterContent deleteCharactersInRange:NSMakeRange(location, 1)];
-    }
-    [self.nextChapterContentList addObject:[chapterContent substringFromIndex:location]];
+    
+    return contentList;
 }
-
 #pragma mark - 协议方法 UIPageViewControllerDataSource/Delegate
 - (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerBeforeViewController:(UIViewController *)viewController{
     if ([self.currentChapterContentVCList containsObject:viewController]) {
@@ -362,43 +310,51 @@ static NSInteger const kRightInset = 15;
         }
         //当用户翻到章节一半的时候,开启子线程加载上一章数据
         if (index == floor(self.currentChapterContentVCList.count/2)) {
-            [[Network sharedNetwork] getChapterDetailWithChapterLink:[self.chapterList objectAtIndex:self.selectedChapterIndex-1].link successBlock:^(id responseBody) {
-                [[NSOperationQueue new] addOperationWithBlock:^{
-                    if ([[responseBody objectForKey:@"ok"] boolValue]) {
-                        self.preChapterDetailModel = [ChapterDetailModel parse:[responseBody objectForKey:@"chapter"]];
-                        self.preChapterContentHeight = ceil([NSString heightWithContent:[NSString stringWithFormat:@"%@\n%@", self.preChapterDetailModel.title, self.preChapterDetailModel.body] font:self.chapterBodyLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES]);
-                        [self getPreChapterPageData];
-                        [self.preChapterContentVCList removeAllObjects];
-                        for (NSString *contentPart in self.preChapterContentList) {
-                            UIViewController *vc = [[UIViewController alloc] init];
-                            vc.view.backgroundColor = TEXT_WHITE_COLOR;
-                            UILabel *contentPartLb = [[UILabel alloc] init];
-                            [vc.view addSubview:contentPartLb];
-                            [contentPartLb mas_makeConstraints:^(MASConstraintMaker *make) {
-                                make.top.left.equalTo(kLeftInset);
-                                make.right.equalTo(-kRightInset);
-                                //                                make.height.lessThanOrEqualTo(kChapterBodyHeight);
-                            }];
-                            contentPartLb.font = [UIFont systemFontOfSize:17];
-                            contentPartLb.attributedText = [[NSAttributedString alloc] initWithString:contentPart attributes:[NSString attributesDictionaryWithContent:contentPart font:contentPartLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES]];
-                            contentPartLb.textColor = TEXT_MID_COLOR;
-                            contentPartLb.numberOfLines = 0;
-                            UILabel *pageIndexLb = [[UILabel alloc] init];
-                            [vc.view addSubview:pageIndexLb];
-                            [pageIndexLb mas_makeConstraints:^(MASConstraintMaker *make) {
-                                make.bottom.right.equalTo(-kRightInset);
-                            }];
-                            pageIndexLb.text = [NSString stringWithFormat:@"%@  %ld/%ld", self.preChapterDetailModel.title, [self.preChapterContentList indexOfObject:contentPart]+1, self.preChapterContentList.count];
-                            pageIndexLb.font = [UIFont systemFontOfSize:14];
-                            pageIndexLb.textColor = TEXT_MID_COLOR;
-                            [self.preChapterContentVCList addObject:vc];
+            //如果当前不为第一章的时候,加载数据
+            if (self.selectedChapterIndex > 0) {
+                [[Network sharedNetwork] getChapterDetailWithChapterLink:[self.chapterList objectAtIndex:self.selectedChapterIndex-1].link successBlock:^(id responseBody) {
+                    [[NSOperationQueue new] addOperationWithBlock:^{
+                        if ([[responseBody objectForKey:@"ok"] boolValue]) {
+                            self.preChapterDetailModel = [ChapterDetailModel parse:[responseBody objectForKey:@"chapter"]];
+                            //全角转半角
+                            self.preChapterDetailModel.body = [NSString stringCovertedByFullWidthString:self.preChapterDetailModel.body];
+                            self.preChapterContentHeight = ceil([NSString heightWithContent:[NSString stringWithFormat:@"%@\n%@", self.preChapterDetailModel.title, self.preChapterDetailModel.body] font:self.chapterBodyLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES]);
+                            [self getPreChapterPageData];
+                            [self.preChapterContentVCList removeAllObjects];
+                            for (NSString *contentPart in self.preChapterContentList) {
+                                UIViewController *vc = [[UIViewController alloc] init];
+                                vc.view.backgroundColor = TEXT_WHITE_COLOR;
+                                UILabel *contentPartLb = [[UILabel alloc] init];
+                                [vc.view addSubview:contentPartLb];
+                                [contentPartLb mas_makeConstraints:^(MASConstraintMaker *make) {
+                                    make.top.left.equalTo(kLeftInset);
+                                    make.right.equalTo(-kRightInset);
+                                    //                                make.height.lessThanOrEqualTo(kChapterBodyHeight);
+                                }];
+                                contentPartLb.font = [UIFont systemFontOfSize:17];
+                                contentPartLb.attributedText = [[NSAttributedString alloc] initWithString:contentPart attributes:[NSString attributesDictionaryWithContent:contentPart font:contentPartLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES]];
+                                contentPartLb.textColor = TEXT_MID_COLOR;
+                                contentPartLb.numberOfLines = 0;
+                                UILabel *pageIndexLb = [[UILabel alloc] init];
+                                [vc.view addSubview:pageIndexLb];
+                                [pageIndexLb mas_makeConstraints:^(MASConstraintMaker *make) {
+                                    make.bottom.right.equalTo(-kRightInset);
+                                }];
+                                pageIndexLb.text = [NSString stringWithFormat:@"%@  %ld/%ld", self.preChapterDetailModel.title, [self.preChapterContentList indexOfObject:contentPart]+1, self.preChapterContentList.count];
+                                pageIndexLb.font = [UIFont systemFontOfSize:14];
+                                pageIndexLb.textColor = TEXT_MID_COLOR;
+                                [self.preChapterContentVCList addObject:vc];
+                            }
                         }
-                    }
+                    }];
+                    
+                } failureBlock:^(NSError *error) {
+                    ;
                 }];
-                
-            } failureBlock:^(NSError *error) {
-                ;
-            }];
+            } else {
+                //如果当前为第一章的时候,清空即将显示的数组
+                [self.preChapterContentVCList removeAllObjects];
+            }
         }
         index--;
         if (index < 0) {
@@ -414,42 +370,51 @@ static NSInteger const kRightInset = 15;
         }
         //当用户翻到章节一半的时候,开启子线程加载上一章数据
         if (index == floor(self.preChapterContentVCList.count/2)) {
-            [[Network sharedNetwork] getChapterDetailWithChapterLink:[self.chapterList objectAtIndex:self.selectedChapterIndex-1].link successBlock:^(id responseBody) {
-                [[NSOperationQueue new] addOperationWithBlock:^{
-                    if ([[responseBody objectForKey:@"ok"] boolValue]) {
-                        self.nextChapterDetailModel = [ChapterDetailModel parse:[responseBody objectForKey:@"chapter"]];
-                        self.nextChapterContentHeight = ceil([NSString heightWithContent:[NSString stringWithFormat:@"%@\n%@", self.nextChapterDetailModel.title, self.nextChapterDetailModel.body] font:self.chapterBodyLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES]);
-                        [self getNextChapterPageData];
-                        [self.nextChapterContentVCList removeAllObjects];
-                        for (NSString *contentPart in self.nextChapterContentList) {
-                            UIViewController *vc = [[UIViewController alloc] init];
-                            vc.view.backgroundColor = TEXT_WHITE_COLOR;
-                            UILabel *contentPartLb = [[UILabel alloc] init];
-                            [vc.view addSubview:contentPartLb];
-                            [contentPartLb mas_makeConstraints:^(MASConstraintMaker *make) {
-                                make.top.left.equalTo(kLeftInset);
-                                make.right.equalTo(-kRightInset);
-//                                make.height.lessThanOrEqualTo(kChapterBodyHeight);
-                            }];
-                            contentPartLb.font = [UIFont systemFontOfSize:17];
-                            contentPartLb.attributedText = [[NSAttributedString alloc] initWithString:contentPart attributes:[NSString attributesDictionaryWithContent:contentPart font:contentPartLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES]];
-                            contentPartLb.textColor = TEXT_MID_COLOR;
-                            contentPartLb.numberOfLines = 0;
-                            UILabel *pageIndexLb = [[UILabel alloc] init];
-                            [vc.view addSubview:pageIndexLb];
-                            [pageIndexLb mas_makeConstraints:^(MASConstraintMaker *make) {
+            
+            if (self.selectedChapterIndex != 0) {
+                //如果当前不为第一章的时候,加载数据
+                [[Network sharedNetwork] getChapterDetailWithChapterLink:[self.chapterList objectAtIndex:self.selectedChapterIndex-1].link successBlock:^(id responseBody) {
+                    [[NSOperationQueue new] addOperationWithBlock:^{
+                        if ([[responseBody objectForKey:@"ok"] boolValue]) {
+                            self.nextChapterDetailModel = [ChapterDetailModel parse:[responseBody objectForKey:@"chapter"]];
+                            //全角转半角
+                            self.nextChapterDetailModel.body = [NSString stringCovertedByFullWidthString:self.nextChapterDetailModel.body];
+                            self.nextChapterContentHeight = ceil([NSString heightWithContent:[NSString stringWithFormat:@"%@\n%@", self.nextChapterDetailModel.title, self.nextChapterDetailModel.body] font:self.chapterBodyLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES]);
+                            [self getNextChapterPageData];
+                            [self.nextChapterContentVCList removeAllObjects];
+                            for (NSString *contentPart in self.nextChapterContentList) {
+                                UIViewController *vc = [[UIViewController alloc] init];
+                                vc.view.backgroundColor = TEXT_WHITE_COLOR;
+                                UILabel *contentPartLb = [[UILabel alloc] init];
+                                [vc.view addSubview:contentPartLb];
+                                [contentPartLb mas_makeConstraints:^(MASConstraintMaker *make) {
+                                    make.top.left.equalTo(kLeftInset);
+                                    make.right.equalTo(-kRightInset);
+                                    //                                make.height.lessThanOrEqualTo(kChapterBodyHeight);
+                                }];
+                                contentPartLb.font = [UIFont systemFontOfSize:17];
+                                contentPartLb.attributedText = [[NSAttributedString alloc] initWithString:contentPart attributes:[NSString attributesDictionaryWithContent:contentPart font:contentPartLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES]];
+                                contentPartLb.textColor = TEXT_MID_COLOR;
+                                contentPartLb.numberOfLines = 0;
+                                UILabel *pageIndexLb = [[UILabel alloc] init];
+                                [vc.view addSubview:pageIndexLb];
+                                [pageIndexLb mas_makeConstraints:^(MASConstraintMaker *make) {
                                     make.bottom.right.equalTo(-kRightInset);
-                            }];
-                            pageIndexLb.text = [NSString stringWithFormat:@"%@  %ld/%ld", self.nextChapterDetailModel.title, [self.nextChapterContentList indexOfObject:contentPart]+1, self.nextChapterContentList.count];
-                            pageIndexLb.font = [UIFont systemFontOfSize:14];
-                            pageIndexLb.textColor = TEXT_MID_COLOR;
-                            [self.nextChapterContentVCList addObject:vc];
+                                }];
+                                pageIndexLb.text = [NSString stringWithFormat:@"%@  %ld/%ld", self.nextChapterDetailModel.title, [self.nextChapterContentList indexOfObject:contentPart]+1, self.nextChapterContentList.count];
+                                pageIndexLb.font = [UIFont systemFontOfSize:14];
+                                pageIndexLb.textColor = TEXT_MID_COLOR;
+                                [self.nextChapterContentVCList addObject:vc];
+                            }
                         }
-                    }
+                    }];
+                } failureBlock:^(NSError *error) {
+                    ;
                 }];
-            } failureBlock:^(NSError *error) {
-                ;
-            }];
+            } else {
+                //如果当前为第一章的时候,清空即将显示的数组
+                [self.nextChapterContentVCList removeAllObjects];
+            }
         }
         index--;
         if (index < 0) {
@@ -465,43 +430,51 @@ static NSInteger const kRightInset = 15;
         }
         //当用户翻到章节一半的时候,开启子线程加载上一章数据
         if (index == floor(self.nextChapterContentVCList.count/2)) {
-            [[Network sharedNetwork] getChapterDetailWithChapterLink:[self.chapterList objectAtIndex:self.selectedChapterIndex-1].link successBlock:^(id responseBody) {
-                [[NSOperationQueue new] addOperationWithBlock:^{
-                    if ([[responseBody objectForKey:@"ok"] boolValue]) {
-                        self.currentChapterDetailModel = [ChapterDetailModel parse:[responseBody objectForKey:@"chapter"]];
-                        self.currentChapterContentHeight = ceil([NSString heightWithContent:[NSString stringWithFormat:@"%@\n%@", self.currentChapterDetailModel.title, self.currentChapterDetailModel.body] font:self.chapterBodyLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES]);
-                        [self getCurrentChapterPageData];
-                        [self.currentChapterContentVCList removeAllObjects];
-                        for (NSString *contentPart in self.currentChapterContentList) {
-                            UIViewController *vc = [[UIViewController alloc] init];
-                            vc.view.backgroundColor = TEXT_WHITE_COLOR;
-                            UILabel *contentPartLb = [[UILabel alloc] init];
-                            [vc.view addSubview:contentPartLb];
-                            [contentPartLb mas_makeConstraints:^(MASConstraintMaker *make) {
-                                make.top.left.equalTo(kLeftInset);
-                                make.right.equalTo(-kRightInset);
-                                //                                make.height.lessThanOrEqualTo(kChapterBodyHeight);
-                            }];
-                            contentPartLb.font = [UIFont systemFontOfSize:17];
-                            contentPartLb.attributedText = [[NSAttributedString alloc] initWithString:contentPart attributes:[NSString attributesDictionaryWithContent:contentPart font:contentPartLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES]];
-                            contentPartLb.textColor = TEXT_MID_COLOR;
-                            contentPartLb.numberOfLines = 0;
-                            UILabel *pageIndexLb = [[UILabel alloc] init];
-                            [vc.view addSubview:pageIndexLb];
-                            [pageIndexLb mas_makeConstraints:^(MASConstraintMaker *make) {
-                                make.bottom.right.equalTo(-kRightInset);
-                            }];
-                            pageIndexLb.text = [NSString stringWithFormat:@"%@  %ld/%ld", self.currentChapterDetailModel.title, [self.currentChapterContentList indexOfObject:contentPart]+1, self.currentChapterContentList.count];
-                            pageIndexLb.font = [UIFont systemFontOfSize:14];
-                            pageIndexLb.textColor = TEXT_MID_COLOR;
-                            [self.currentChapterContentVCList addObject:vc];
+            if (self.selectedChapterIndex != 0) {
+                //如果当前不为第一章的时候,加载数据
+                [[Network sharedNetwork] getChapterDetailWithChapterLink:[self.chapterList objectAtIndex:self.selectedChapterIndex-1].link successBlock:^(id responseBody) {
+                    [[NSOperationQueue new] addOperationWithBlock:^{
+                        if ([[responseBody objectForKey:@"ok"] boolValue]) {
+                            self.currentChapterDetailModel = [ChapterDetailModel parse:[responseBody objectForKey:@"chapter"]];
+                            //全角转半角
+                            self.currentChapterDetailModel.body = [NSString stringCovertedByFullWidthString:self.currentChapterDetailModel.body];
+                            self.currentChapterContentHeight = ceil([NSString heightWithContent:[NSString stringWithFormat:@"%@\n%@", self.currentChapterDetailModel.title, self.currentChapterDetailModel.body] font:self.chapterBodyLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES]);
+                            [self getCurrentChapterPageData];
+                            [self.currentChapterContentVCList removeAllObjects];
+                            for (NSString *contentPart in self.currentChapterContentList) {
+                                UIViewController *vc = [[UIViewController alloc] init];
+                                vc.view.backgroundColor = TEXT_WHITE_COLOR;
+                                UILabel *contentPartLb = [[UILabel alloc] init];
+                                [vc.view addSubview:contentPartLb];
+                                [contentPartLb mas_makeConstraints:^(MASConstraintMaker *make) {
+                                    make.top.left.equalTo(kLeftInset);
+                                    make.right.equalTo(-kRightInset);
+                                    //                                make.height.lessThanOrEqualTo(kChapterBodyHeight);
+                                }];
+                                contentPartLb.font = [UIFont systemFontOfSize:17];
+                                contentPartLb.attributedText = [[NSAttributedString alloc] initWithString:contentPart attributes:[NSString attributesDictionaryWithContent:contentPart font:contentPartLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES]];
+                                contentPartLb.textColor = TEXT_MID_COLOR;
+                                contentPartLb.numberOfLines = 0;
+                                UILabel *pageIndexLb = [[UILabel alloc] init];
+                                [vc.view addSubview:pageIndexLb];
+                                [pageIndexLb mas_makeConstraints:^(MASConstraintMaker *make) {
+                                    make.bottom.right.equalTo(-kRightInset);
+                                }];
+                                pageIndexLb.text = [NSString stringWithFormat:@"%@  %ld/%ld", self.currentChapterDetailModel.title, [self.currentChapterContentList indexOfObject:contentPart]+1, self.currentChapterContentList.count];
+                                pageIndexLb.font = [UIFont systemFontOfSize:14];
+                                pageIndexLb.textColor = TEXT_MID_COLOR;
+                                [self.currentChapterContentVCList addObject:vc];
+                            }
                         }
-                    }
+                    }];
+                    
+                } failureBlock:^(NSError *error) {
+                    ;
                 }];
-
-            } failureBlock:^(NSError *error) {
-                ;
-            }];
+            } else {
+                //如果当前为第一章的时候,清空即将显示的数组
+                [self.currentChapterContentVCList removeAllObjects];
+            }
         }
         index--;
         if (index < 0) {
@@ -529,6 +502,8 @@ static NSInteger const kRightInset = 15;
                 [[NSOperationQueue new] addOperationWithBlock:^{
                     if ([[responseBody objectForKey:@"ok"] boolValue]) {
                         self.nextChapterDetailModel = [ChapterDetailModel parse:[responseBody objectForKey:@"chapter"]];
+                        //全角转半角
+                        self.nextChapterDetailModel.body = [NSString stringCovertedByFullWidthString:self.nextChapterDetailModel.body];
                         self.nextChapterContentHeight = ceil([NSString heightWithContent:[NSString stringWithFormat:@"%@\n%@", self.nextChapterDetailModel.title, self.nextChapterDetailModel.body] font:self.chapterBodyLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES]);
                         [self getNextChapterPageData];
                         [self.nextChapterContentVCList removeAllObjects];
@@ -581,6 +556,8 @@ static NSInteger const kRightInset = 15;
                 [[NSOperationQueue new] addOperationWithBlock:^{
                     if ([[responseBody objectForKey:@"ok"] boolValue]) {
                         self.currentChapterDetailModel = [ChapterDetailModel parse:[responseBody objectForKey:@"chapter"]];
+                        //全角转半角
+                        self.currentChapterDetailModel.body = [NSString stringCovertedByFullWidthString:self.currentChapterDetailModel.body];
                         self.currentChapterContentHeight = ceil([NSString heightWithContent:[NSString stringWithFormat:@"%@\n%@", self.currentChapterDetailModel.title, self.currentChapterDetailModel.body] font:self.chapterBodyLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES]);
                         [self getCurrentChapterPageData];
                         [self.currentChapterContentVCList removeAllObjects];
@@ -632,6 +609,8 @@ static NSInteger const kRightInset = 15;
                 [[NSOperationQueue new] addOperationWithBlock:^{
                     if ([[responseBody objectForKey:@"ok"] boolValue]) {
                         self.preChapterDetailModel = [ChapterDetailModel parse:[responseBody objectForKey:@"chapter"]];
+                        //全角转半角
+                        self.preChapterDetailModel.body = [NSString stringCovertedByFullWidthString:self.preChapterDetailModel.body];
                         self.preChapterContentHeight = ceil([NSString heightWithContent:[NSString stringWithFormat:@"%@\n%@", self.preChapterDetailModel.title, self.preChapterDetailModel.body] font:self.chapterBodyLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:YES]);
                         [self getPreChapterPageData];
                         [self.preChapterContentVCList removeAllObjects];
@@ -715,14 +694,14 @@ static NSInteger const kRightInset = 15;
         [_selectBtn addControlClickBlock:^(UIControl *sender) {
             sender.selected = !sender.selected;
             if (sender.selected) {
-                weakSelf.chapterScrollView.hidden = YES;
-                [weakSelf.view addSubview:weakSelf.pageVC.view];
-                weakSelf.pageVC.view.frame = CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT - STATUS_AND_NAVIGATION_HEIGHT);
+//                weakSelf.chapterScrollView.hidden = YES;
+//                [weakSelf.view addSubview:weakSelf.pageVC.view];
+//                weakSelf.pageVC.view.frame = CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT - STATUS_AND_NAVIGATION_HEIGHT);
 
             } else {
-                [weakSelf.pageVC.view removeFromSuperview];
-                weakSelf.pageVC.view.frame = CGRectZero;
-                weakSelf.chapterScrollView.hidden = NO;
+//                [weakSelf.pageVC.view removeFromSuperview];
+//                weakSelf.pageVC.view.frame = CGRectZero;
+//                weakSelf.chapterScrollView.hidden = NO;
                 
             }
         } forControlEvents:UIControlEventTouchUpInside];
@@ -767,7 +746,8 @@ static NSInteger const kRightInset = 15;
         //遵从先数据后UI原则
         [self getCurrentChapterPageData];
         _pageVC = [[UIPageViewController alloc] initWithTransitionStyle:UIPageViewControllerTransitionStyleScroll navigationOrientation:UIPageViewControllerNavigationOrientationHorizontal options:nil];
-//        [self.view addSubview:_pageVC.view];
+        _pageVC.view.frame = CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT - STATUS_AND_NAVIGATION_HEIGHT);
+        [self.view addSubview:_pageVC.view];
         _pageVC.view.tag = kPageViewTag;
         self.firstLoad = YES;
 

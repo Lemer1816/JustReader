@@ -15,9 +15,15 @@ typedef NS_ENUM(NSUInteger, StringType) {
 
 @interface NSString (Utils)
 /** 根据数字和转换类型得到字符串 */
-+ (NSString *)stringWithCount:(NSInteger)count suffix:(StringType)type;
++ (NSString *)stringWithCount:(NSInteger)count
+                       suffix:(StringType)type;
+
 /** 根据日期得到文本日期字符串 */
 + (NSString *)textStringWithDate:(NSDate *)date;
+
+/** 将全角字符转换为半角字符 */
++ (NSString *)stringCovertedByFullWidthString:(NSString *)fullWidthString;
+
 /*  根据文本内容,字体大小,行宽得到文本高度
  *
  *  @param  content 文本内容

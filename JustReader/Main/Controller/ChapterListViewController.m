@@ -113,6 +113,7 @@
     chapterDetailVC.chapterList = self.chapterIncreasedList;
     chapterDetailVC.selectedChapterIndex = self.selectOrderBtn.selected ? self.chapterDecreasedList.count-row : row;
     chapterDetailVC.selectedChapterInfoModel = self.selectOrderBtn.selected ? [self.chapterDecreasedList objectAtIndex:row] : [self.chapterIncreasedList objectAtIndex:row];
+    
     [self.navigationController pushViewController:chapterDetailVC animated:YES];
 }
 #pragma mark - 懒加载 LazyLoad
