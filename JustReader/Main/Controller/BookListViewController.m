@@ -38,6 +38,7 @@
     [self addBackButton];
     self.navigationItem.title = @"书籍列表";
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:self.selectBtn];
+    self.navigationController.navigationBar.barTintColor = NAVIGATION_BACKGROUNDCOLOR;
     [self loadData];
 }
 

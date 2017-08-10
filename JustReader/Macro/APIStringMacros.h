@@ -10,9 +10,9 @@
 #define APIStringMacros_h
 
 //基本路径
-#define API_BASE_URL_STRING     @"http://api.zhuishushenqi.com"
+#define API_BASE_URL_STRING          @"http://api.zhuishushenqi.com"
 //章节路径
-#define API_CHAPTER_URL_STRING  @"http://chapter2.zhuishushenqi.com"
+#define API_CHAPTER_URL_STRING       @"http://chapter2.zhuishushenqi.com"
 //接口路径全拼
 #define PATH(_path) [NSString stringWithFormat:@"%@%@",API_BASE_URL_STRING,_path]
 //书籍搜索
