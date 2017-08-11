@@ -69,7 +69,7 @@
     //对齐方式--左右对齐
     paragraphStyle.alignment = NSTextAlignmentJustified;
     //行间距
-    paragraphStyle.lineSpacing = font.lineHeight-10;
+    paragraphStyle.lineSpacing = font.lineHeight-12;
     //判断每行最后一个单词是否被截断,数值介于0.0~1.0,越靠近1.0被截断的几率越大
     paragraphStyle.hyphenationFactor = 0.3;
     //首行缩进
@@ -83,7 +83,7 @@
     //段落后间距(暂时发现\n存在时生效)
     paragraphStyle.paragraphSpacing = font.lineHeight-4;
 //    //行间距(是默认行间距的多少倍)
-//    paragraphStyle.lineHeightMultiple = 1.0;
+//    paragraphStyle.lineHeightMultiple = 0.5;
 
     NSDictionary *dic = @{NSFontAttributeName: font, NSParagraphStyleAttributeName: paragraphStyle,  NSKernAttributeName: @1.5f, NSUnderlineStyleAttributeName: [NSNumber numberWithInteger:NSUnderlineStyleNone]};
     return dic;

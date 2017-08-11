@@ -40,6 +40,7 @@
     [self addBackButton];
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:self.selectOrderBtn];
     self.navigationItem.title = @"章节列表";
+    
     [self loadData];
 }
 #pragma mark - 方法 Methods
@@ -48,9 +49,9 @@
         if ([responseBody isKindOfClass:[NSArray class]]) {
             for (NSDictionary *dict in (NSArray *)responseBody) {
                 BookSourceModel *model = [BookSourceModel parse:dict];
-                if ([model.name isEqualToString:@"优质书源"]) {
-                    continue;
-                }
+//                if ([model.name isEqualToString:@"优质书源"]) {
+//                    continue;
+//                }
                 [self.bookSourceList addObject:model];
             }
             self.selectedBookSourceModel = [self.bookSourceList objectAtIndex:1];
@@ -115,6 +116,7 @@
     chapterDetailVC.selectedChapterInfoModel = self.selectOrderBtn.selected ? [self.chapterDecreasedList objectAtIndex:row] : [self.chapterIncreasedList objectAtIndex:row];
     
     [self.navigationController pushViewController:chapterDetailVC animated:YES];
+//    [self presentViewController:chapterDetailVC animated:YES completion:nil];
 }
 #pragma mark - 懒加载 LazyLoad
 - (NSMutableArray<BookSourceModel *> *)bookSourceList{
