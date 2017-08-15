@@ -15,6 +15,8 @@
 #import "UIControl+Event.h"
 
 @interface HomePageViewController () <PYSearchViewControllerDataSource, PYSearchViewControllerDelegate>
+/** 搜索按钮 */
+@property (nonatomic, readwrite, strong) UIButton *searchBtn;
 /** 取消按钮 */
 @property (nonatomic, readwrite, strong) UIButton *cancelBtn;
 @end
@@ -26,16 +28,7 @@
     
     NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
     NSString *displayName = [infoDict objectForKey:(NSString *)kCFBundleExecutableKey];
-    
-    UIButton *testBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-    [self.view addSubview:testBtn];
-    [testBtn mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.center.equalTo(0);
-    }];
-    [testBtn setTitle:displayName forState:UIControlStateNormal];
-    [testBtn setTitleColor:FRESH_RED_COLOR forState:UIControlStateNormal];
-    testBtn.titleLabel.font = [UIFont systemFontOfSize:40];
-    [testBtn addTarget:self action:@selector(searchTest:) forControlEvents:UIControlEventTouchUpInside];
+    [self.searchBtn setTitle:displayName forState:UIControlStateNormal];
 }
 
 #pragma mark - 方法 Methods
@@ -77,6 +70,20 @@
     }
 }
 #pragma mark - 懒加载 LazyLoad
+- (UIButton *)searchBtn{
+    if (_searchBtn == nil) {
+        _searchBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        [self.view addSubview:_searchBtn];
+        [_searchBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.center.equalTo(0);
+        }];
+        [_searchBtn setTitleColor:FRESH_RED_COLOR forState:UIControlStateNormal];
+        _searchBtn.titleLabel.font = [UIFont systemFontOfSize:40];
+        [_searchBtn addTarget:self action:@selector(searchTest:) forControlEvents:UIControlEventTouchUpInside];
+        
+    }
+    return _searchBtn;
+}
 - (UIButton *)cancelBtn{
     if (_cancelBtn == nil) {
         _cancelBtn = [UIButton buttonWithType:UIButtonTypeCustom];

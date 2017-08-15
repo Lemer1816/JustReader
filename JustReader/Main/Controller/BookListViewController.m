@@ -35,10 +35,18 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    [self addBackButton];
+//    [self addBackButton];
     self.navigationItem.title = @"书籍列表";
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:self.selectBtn];
     self.navigationController.navigationBar.barTintColor = NAVIGATION_BACKGROUNDCOLOR;
+    UIButton *backBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    backBtn.bounds = CGRectMake(0, 0, 20, 20);
+    [backBtn setImage:[UIImage imageNamed:@"nav_back_white"] forState:UIControlStateNormal];
+    [backBtn addControlClickBlock:^(UIControl *sender) {
+        [self.navigationController popViewControllerAnimated:YES];
+        self.navigationController.navigationBar.barTintColor = RGB(249, 249, 249);
+    } forControlEvents:UIControlEventTouchUpInside];
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:backBtn];
     [self loadData];
 }
 
@@ -218,7 +226,7 @@
         _selectBtn.frame = CGRectMake(0, 0, 100, 30);
         [_selectBtn setTitle:@"列表显示" forState:UIControlStateNormal];
         [_selectBtn setTitle:@"网格显示" forState:UIControlStateSelected];
-        _selectBtn.backgroundColor = [UIColor redColor];
+//        _selectBtn.backgroundColor = [UIColor redColor];
         _selectBtn.titleLabel.font = [UIFont systemFontOfSize:15];
         __block __weak __typeof(&*self)weakSelf = self;
         [_selectBtn addControlClickBlock:^(UIControl *sender) {

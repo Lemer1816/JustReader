@@ -156,7 +156,6 @@
         _selectOrderBtn.bounds = CGRectMake(0, 0, 50, 30);
         [_selectOrderBtn setTitle:@"顺序" forState:UIControlStateNormal];
         [_selectOrderBtn setTitle:@"倒序" forState:UIControlStateSelected];
-        
         [_selectOrderBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
         [_selectOrderBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateSelected];
         
