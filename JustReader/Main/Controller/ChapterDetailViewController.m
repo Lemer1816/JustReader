@@ -75,6 +75,11 @@ static NSInteger const kRightInset = 15;
 @property (nonatomic, readwrite, strong) NSMutableArray<UIViewController *> *preChapterContentVCList;
 /** 后一视图数组 */
 @property (nonatomic, readwrite, strong) NSMutableArray<UIViewController *> *nextChapterContentVCList;
+/** 顶部视图 */
+@property (nonatomic, readwrite, strong) UIView *topView;
+/** 底部视图 */
+@property (nonatomic, readwrite, strong) UIView *bottomView;
+
 @end
 
 @implementation ChapterDetailViewController
@@ -87,6 +92,9 @@ static NSInteger const kRightInset = 15;
     self.navigationItem.title = @"章节详情";
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:self.selectBtn];
     self.fontSize = 17;
+    self.firstLoad = YES;
+    self.chapterTitleLb.text = [self.chapterList objectAtIndex:self.selectedChapterIndex].title;
+    
     [self getCurrentChapterDetail];
     
 
@@ -115,7 +123,11 @@ static NSInteger const kRightInset = 15;
                 [self getPreChapterDetail];
                 [self getNextChapterDetail];
             }
+            [self getCurrentChapterContentData];
+            [self getCurrentChapterContentVCData];
+            self.chapterIndexLb.text = [NSString stringWithFormat:@"1 / %ld", self.currentChapterContentList.count];
             [self pageVC];
+            [self topView];
         }
     } failureBlock:^(NSError *error) {
         ;
@@ -314,31 +326,31 @@ static NSInteger const kRightInset = 15;
 //    return UIStatusBarAnimationFade;
 //}
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event{
-    self.fontSize = 20;
-    self.pageVC = nil;
-    [self reloadChapterData];
-    
+    [UIView animateWithDuration:0.5 animations:^{
+        self.topView.y = self.topView.y == 0 ? -STATUS_AND_NAVIGATION_HEIGHT : 0;
+    }];
+
 }
 - (void)reloadChapterData{
-    
-    NSLog(@"开始刷新");
-    if (self.selectedChapterIndex == 0) {   //如果是第一章
-        [self getNextChapterContentData];
-        [self getNextChapterContentVCData];
-    } else if (self.selectedChapterIndex == self.chapterList.count-1) {     //如果是最后一章
-        [self getPreChapterContentData];
-        [self getPreChapterContentVCData];
-    } else {
-        [self getPreChapterContentData];
-        [self getPreChapterContentVCData];
-        [self getNextChapterContentData];
-        [self getNextChapterContentVCData];
-    }
+//    
+//    NSLog(@"开始刷新");
+//    if (self.selectedChapterIndex == 0) {   //如果是第一章
+//        [self getNextChapterContentData];
+//        [self getNextChapterContentVCData];
+//    } else if (self.selectedChapterIndex == self.chapterList.count-1) {     //如果是最后一章
+//        [self getPreChapterContentData];
+//        [self getPreChapterContentVCData];
+//    } else {
+//        [self getPreChapterContentData];
+//        [self getPreChapterContentVCData];
+//        [self getNextChapterContentData];
+//        [self getNextChapterContentVCData];
+//    }
 //    [self getCurrentChapterContentData];
 //    [self getCurrentChapterContentVCData];
-    [self pageVC];
-//    [self.view setNeedsDisplay];
-    NSLog(@"结束刷新");
+//
+//    [self.pageVC.view setNeedsDisplay];
+//    NSLog(@"结束刷新");
 //    [MBProgressHUD hideHUDForView:self.view animated:YES];
 }
 #pragma mark - 协议方法 UIPageViewControllerDataSource/Delegate
@@ -470,7 +482,6 @@ static NSInteger const kRightInset = 15;
         }
         //当用户翻到章节一半的时候,开启子线程加载下一章数据
         if (index == ceil(self.currentChapterContentVCList.count/2)) {
-            
             if (self.selectedChapterIndex < self.chapterList.count-1) {
                 //如果当前不为最后章的时候,加载数据
                 [[Network sharedNetwork] getChapterDetailWithChapterLink:[self.chapterList objectAtIndex:self.selectedChapterIndex+1].link successBlock:^(id responseBody) {
@@ -694,25 +705,16 @@ static NSInteger const kRightInset = 15;
     return _chapterBodyLb;
 }
 - (UIPageViewController *)pageVC{
-    [self getCurrentChapterContentData];
+    
     if (_pageVC == nil) {
         _pageVC = [[UIPageViewController alloc] initWithTransitionStyle:UIPageViewControllerTransitionStyleScroll navigationOrientation:UIPageViewControllerNavigationOrientationHorizontal options:nil];
         _pageVC.view.frame = CGRectMake(0, kTopInset, SCREEN_WIDTH, SCREEN_HEIGHT - kTopInset - kBottomInset);
         [self.view addSubview:_pageVC.view];
-        _pageVC.view.tag = kPageViewTag;
         _pageVC.dataSource = self;
         _pageVC.delegate = self;
+        
+        [_pageVC setViewControllers:@[self.currentChapterContentVCList.firstObject] direction:UIPageViewControllerNavigationDirectionForward animated:YES completion:nil];
     }
-    
-    [self getCurrentChapterContentVCData];
-    
-    [_pageVC setViewControllers:@[self.currentChapterContentVCList.firstObject] direction:UIPageViewControllerNavigationDirectionForward animated:YES completion:nil];
-    
-    self.firstLoad = YES;
-    self.chapterTitleLb.text = [self.chapterList objectAtIndex:self.selectedChapterIndex].title;
-    self.chapterIndexLb.text = [NSString stringWithFormat:@"1 / %ld", self.currentChapterContentList.count];
-    
-    
     return _pageVC;
 }
 - (NSMutableArray<UIViewController *> *)currentChapterContentVCList{
@@ -732,5 +734,24 @@ static NSInteger const kRightInset = 15;
         _nextChapterContentVCList = [NSMutableArray array];
     }
     return _nextChapterContentVCList;
+}
+- (UIView *)topView{
+    if (_topView == nil) {
+        _topView = [[UIView alloc] initWithFrame:CGRectMake(0, -STATUS_AND_NAVIGATION_HEIGHT, SCREEN_WIDTH, STATUS_AND_NAVIGATION_HEIGHT)];
+        [self.view addSubview:_topView];
+        _topView.backgroundColor = [UIColor grayColor];
+        //返回按钮
+        UIButton *backBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        [_topView addSubview:backBtn];
+        [backBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(15);
+            make.centerY.equalTo(0);
+        }];
+        [backBtn setImage:[UIImage imageNamed:@"nav_back_white"] forState:UIControlStateNormal];
+        [backBtn addControlClickBlock:^(UIControl *sender) {
+            [self.navigationController popViewControllerAnimated:YES];
+        } forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _topView;
 }
 @end
