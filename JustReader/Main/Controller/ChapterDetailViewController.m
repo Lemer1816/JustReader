@@ -15,7 +15,6 @@
 #import "UIView+Frame.h"
 #import "UIControl+Event.h"
 
-static NSInteger const kPageViewTag = 1000;
 static NSInteger const kTopInset = 55;
 static NSInteger const kLeftInset = 15;
 static NSInteger const kBottomInset = 45;
@@ -69,6 +68,8 @@ static NSInteger const kRightInset = 15;
 @property (nonatomic, readwrite, strong) UILabel *chapterBodyLb;
 /** 翻页控制器 */
 @property (nonatomic, readwrite, strong) UIPageViewController *pageVC;
+/** 队列滚动视图 */
+@property (nonatomic, readwrite, strong) UIScrollView *queueScrollView;
 /** 当前视图数组 */
 @property (nonatomic, readwrite, strong) NSMutableArray<UIViewController *> *currentChapterContentVCList;
 /** 前一视图数组 */
@@ -88,12 +89,14 @@ static NSInteger const kRightInset = 15;
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self addBackButton];
-    self.view.backgroundColor = TEXT_WHITE_COLOR;
+    self.view.dk_backgroundColorPicker = DKColorPickerWithKey(BG);
     self.navigationItem.title = @"章节详情";
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:self.selectBtn];
-    self.fontSize = 17;
+    self.fontSize = 20;
     self.firstLoad = YES;
     self.chapterTitleLb.text = [self.chapterList objectAtIndex:self.selectedChapterIndex].title;
+    self.dk_manager.themeVersion = @"GREEN";
+    
     
     [self getCurrentChapterDetail];
     
@@ -102,6 +105,7 @@ static NSInteger const kRightInset = 15;
 - (void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
     [self.navigationController setNavigationBarHidden:YES animated:YES];
+    [self setNeedsStatusBarAppearanceUpdate];
 }
 - (void)viewWillDisappear:(BOOL)animated{
     [super viewWillDisappear:animated];
@@ -127,7 +131,10 @@ static NSInteger const kRightInset = 15;
             [self getCurrentChapterContentVCData];
             self.chapterIndexLb.text = [NSString stringWithFormat:@"1 / %ld", self.currentChapterContentList.count];
             [self pageVC];
+            [self queueScrollView];
             [self topView];
+            [self bottomView];
+//            NSLog(@"%@", NSStringFromCGRect(self.bottomView.frame));
         }
     } failureBlock:^(NSError *error) {
         ;
@@ -207,7 +214,7 @@ static NSInteger const kRightInset = 15;
         pageContentVC.contentPartLb.font = [UIFont systemFontOfSize:self.fontSize];
         pageContentVC.contentPartLb.attributedText = [[NSAttributedString alloc] initWithString:contentPart attributes:[NSString attributesDictionaryWithContent:contentPart font:pageContentVC.contentPartLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:self.hasFirstLineHeadIndent]];
         pageContentVC.clickScreenBlock = ^{
-            [self.navigationController popViewControllerAnimated:YES];
+            [self showFunctionView];
         };
         [self.currentChapterContentVCList addObject:pageContentVC];
     }
@@ -220,7 +227,7 @@ static NSInteger const kRightInset = 15;
         pageContentVC.contentPartLb.font = [UIFont systemFontOfSize:self.fontSize];
         pageContentVC.contentPartLb.attributedText = [[NSAttributedString alloc] initWithString:contentPart attributes:[NSString attributesDictionaryWithContent:contentPart font:pageContentVC.contentPartLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:self.hasFirstLineHeadIndent]];
         pageContentVC.clickScreenBlock = ^{
-            [self.navigationController popViewControllerAnimated:YES];
+            [self showFunctionView];
         };
         [self.preChapterContentVCList addObject:pageContentVC];
     }
@@ -233,7 +240,7 @@ static NSInteger const kRightInset = 15;
         pageContentVC.contentPartLb.font = [UIFont systemFontOfSize:self.fontSize];
         pageContentVC.contentPartLb.attributedText = [[NSAttributedString alloc] initWithString:contentPart attributes:[NSString attributesDictionaryWithContent:contentPart font:pageContentVC.contentPartLb.font width:kChapterBodyWidth hasFirstLineHeadIndent:self.hasFirstLineHeadIndent]];
         pageContentVC.clickScreenBlock = ^{
-            [self.navigationController popViewControllerAnimated:YES];
+            [self showFunctionView];
         };
         [self.nextChapterContentVCList addObject:pageContentVC];
     }
@@ -315,24 +322,22 @@ static NSInteger const kRightInset = 15;
     
     return contentList;
 }
-
-- (UIStatusBarStyle)preferredStatusBarStyle{
-    return UIStatusBarStyleLightContent;
+- (BOOL)prefersStatusBarHidden{
+    return YES;
 }
-//- (BOOL)prefersStatusBarHidden{
-//    return YES;
-//}
-//- (UIStatusBarAnimation)preferredStatusBarUpdateAnimation{
-//    return UIStatusBarAnimationFade;
-//}
-- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event{
+- (UIStatusBarAnimation)preferredStatusBarUpdateAnimation{
+    return UIStatusBarAnimationSlide;
+}
+- (void)showFunctionView{
     [UIView animateWithDuration:0.5 animations:^{
         self.topView.y = self.topView.y == 0 ? -STATUS_AND_NAVIGATION_HEIGHT : 0;
     }];
-
+    [UIView animateWithDuration:0.5 animations:^{
+        self.bottomView.y = self.bottomView.y == SCREEN_HEIGHT ? SCREEN_HEIGHT-100 : SCREEN_HEIGHT;
+    }];
+    self.queueScrollView.scrollEnabled = !self.queueScrollView.scrollEnabled;
 }
-- (void)reloadChapterData{
-//    
+- (void)reloadChapterData{  
 //    NSLog(@"开始刷新");
 //    if (self.selectedChapterIndex == 0) {   //如果是第一章
 //        [self getNextChapterContentData];
@@ -648,7 +653,7 @@ static NSInteger const kRightInset = 15;
             make.right.equalTo(-kRightInset);
         }];
         _chapterTitleLb.text = @"标题";
-        _chapterTitleLb.textColor = TEXT_MID_COLOR;
+        _chapterTitleLb.dk_textColorPicker = DKColorPickerWithKey(TEXT);
         _chapterTitleLb.font = [UIFont systemFontOfSize:14];
         _chapterTitleLb.textAlignment = NSTextAlignmentLeft;
     }
@@ -664,7 +669,7 @@ static NSInteger const kRightInset = 15;
             make.right.equalTo(-kRightInset);
         }];
         _chapterIndexLb.text = @"序号";
-        _chapterIndexLb.textColor = TEXT_MID_COLOR;
+        _chapterIndexLb.dk_textColorPicker = DKColorPickerWithKey(TEXT);
         _chapterIndexLb.font = [UIFont systemFontOfSize:14];
         _chapterIndexLb.textAlignment = NSTextAlignmentRight;
     }
@@ -717,6 +722,18 @@ static NSInteger const kRightInset = 15;
     }
     return _pageVC;
 }
+- (UIScrollView *)queueScrollView{
+    if (_queueScrollView == nil) {
+        _queueScrollView = [[UIScrollView alloc] init];
+        for (id subView in self.pageVC.view.subviews) {
+            if ([subView isKindOfClass:[UIScrollView class]]) {
+                _queueScrollView = subView;
+                break;
+            }
+        }
+    }
+    return _queueScrollView;
+}
 - (NSMutableArray<UIViewController *> *)currentChapterContentVCList{
     if (_currentChapterContentVCList == nil) {
         _currentChapterContentVCList = [NSMutableArray array];
@@ -739,19 +756,68 @@ static NSInteger const kRightInset = 15;
     if (_topView == nil) {
         _topView = [[UIView alloc] initWithFrame:CGRectMake(0, -STATUS_AND_NAVIGATION_HEIGHT, SCREEN_WIDTH, STATUS_AND_NAVIGATION_HEIGHT)];
         [self.view addSubview:_topView];
-        _topView.backgroundColor = [UIColor grayColor];
+        _topView.dk_backgroundColorPicker = DKColorPickerWithKey(BG);
         //返回按钮
         UIButton *backBtn = [UIButton buttonWithType:UIButtonTypeCustom];
         [_topView addSubview:backBtn];
         [backBtn mas_makeConstraints:^(MASConstraintMaker *make) {
             make.left.equalTo(15);
-            make.centerY.equalTo(0);
+            make.bottom.equalTo(-15);
         }];
-        [backBtn setImage:[UIImage imageNamed:@"nav_back_white"] forState:UIControlStateNormal];
+        [backBtn setImage:[UIImage imageNamed:@"nav_back"] forState:UIControlStateNormal];
         [backBtn addControlClickBlock:^(UIControl *sender) {
             [self.navigationController popViewControllerAnimated:YES];
         } forControlEvents:UIControlEventTouchUpInside];
     }
     return _topView;
+}
+- (UIView *)bottomView{
+    if (_bottomView == nil) {
+        _bottomView = [[UIView alloc] initWithFrame:CGRectMake(0, SCREEN_HEIGHT, SCREEN_WIDTH, 100)];
+        [self.view addSubview:_bottomView];
+        _bottomView.dk_backgroundColorPicker = DKColorPickerWithKey(BG);
+        //正常色
+        UIButton *normalBGBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        normalBGBtn.frame = CGRectMake(15, 30, (SCREEN_WIDTH-15*5)/4, 20);
+        [_bottomView addSubview:normalBGBtn];
+        [normalBGBtn setTitle:@"正常色" forState:UIControlStateNormal];
+        normalBGBtn.titleLabel.font = [UIFont systemFontOfSize:15];
+        [normalBGBtn setTitleColor:TEXT_DARK_COLOR forState:UIControlStateNormal];
+        [normalBGBtn addControlClickBlock:^(UIControl *sender) {
+            [[DKNightVersionManager sharedManager] dawnComing];
+        } forControlEvents:UIControlEventTouchUpInside];
+        //淡黄色
+        UIButton *yellowBGBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        yellowBGBtn.frame = CGRectMake(15*2+(SCREEN_WIDTH-15*5)/4, 30, (SCREEN_WIDTH-15*5)/4, 20);
+        [_bottomView addSubview:yellowBGBtn];
+        [yellowBGBtn setTitle:@"淡黄色" forState:UIControlStateNormal];
+        yellowBGBtn.titleLabel.font = [UIFont systemFontOfSize:15];
+        [yellowBGBtn setTitleColor:TEXT_DARK_COLOR forState:UIControlStateNormal];
+        [yellowBGBtn addControlClickBlock:^(UIControl *sender) {
+            [[DKNightVersionManager sharedManager] setThemeVersion:@"YELLOW"];
+        } forControlEvents:UIControlEventTouchUpInside];
+        //豆沙绿色
+        UIButton *greenBGBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        greenBGBtn.frame = CGRectMake(15*3+(SCREEN_WIDTH-15*5)/4*2, 30, (SCREEN_WIDTH-15*5)/4, 20);
+        [_bottomView addSubview:greenBGBtn];
+        [greenBGBtn setTitle:@"豆沙绿色" forState:UIControlStateNormal];
+        greenBGBtn.titleLabel.font = [UIFont systemFontOfSize:15];
+        [greenBGBtn setTitleColor:TEXT_DARK_COLOR forState:UIControlStateNormal];
+        [greenBGBtn addControlClickBlock:^(UIControl *sender) {
+            [[DKNightVersionManager sharedManager] setThemeVersion:@"GREEN"];
+        } forControlEvents:UIControlEventTouchUpInside];
+        //夜间色
+        UIButton *darkBGBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        darkBGBtn.frame = CGRectMake(15*4+(SCREEN_WIDTH-15*5)/4*3, 30, (SCREEN_WIDTH-15*5)/4, 20);
+        [_bottomView addSubview:darkBGBtn];
+        [darkBGBtn setTitle:@"夜间色" forState:UIControlStateNormal];
+        darkBGBtn.titleLabel.font = [UIFont systemFontOfSize:15];
+        [darkBGBtn setTitleColor:TEXT_DARK_COLOR forState:UIControlStateNormal];
+        [darkBGBtn addControlClickBlock:^(UIControl *sender) {
+            [[DKNightVersionManager sharedManager] nightFalling];
+        } forControlEvents:UIControlEventTouchUpInside];
+    }
+    
+    return _bottomView;
 }
 @end

@@ -21,7 +21,7 @@ static NSInteger const kRightInset = 15;
 #pragma mark - 生命周期 LifeCircle
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.view.backgroundColor = TEXT_WHITE_COLOR;
+    self.view.dk_backgroundColorPicker = DKColorPickerWithKey(BG);
     [self contentPartLb];
 }
 //点击屏幕
@@ -39,7 +39,7 @@ static NSInteger const kRightInset = 15;
             make.left.equalTo(kLeftInset);
             make.right.equalTo(-kRightInset);
         }];
-        _contentPartLb.textColor = TEXT_MID_COLOR;
+        _contentPartLb.dk_textColorPicker = DKColorPickerWithKey(TEXT);
         _contentPartLb.numberOfLines = 0;
     }
     return _contentPartLb;

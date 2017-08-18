@@ -47,6 +47,7 @@
         self.navigationController.navigationBar.barTintColor = RGB(249, 249, 249);
     } forControlEvents:UIControlEventTouchUpInside];
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:backBtn];
+    [self setNeedsStatusBarAppearanceUpdate];
     [self loadData];
 }
 
@@ -123,6 +124,10 @@
         handler(error);
     }];
 }
+- (UIStatusBarStyle)preferredStatusBarStyle{
+    return UIStatusBarStyleLightContent;
+}
+
 #pragma mark - 协议方法 UITableViewDelegate/DataSource
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
     return 1;

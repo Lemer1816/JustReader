@@ -27,6 +27,8 @@
     [self.navigationBar setBackgroundImage:[UIImage new] forBarMetrics:UIBarMetricsDefault];
     
 }
-
+- (UIViewController *)childViewControllerForStatusBarStyle{
+    return self.topViewController;
+}
 
 @end

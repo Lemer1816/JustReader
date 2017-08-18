@@ -22,7 +22,7 @@
 @end
 
 @implementation BookDetailViewController
-
+#pragma mark - 生命周期 LifeCircle
 - (void)viewDidLoad {
     [super viewDidLoad];
     [[Network sharedNetwork] getBookDetailWithBookId:self.bookId successBlock:^(id responseBody) {
@@ -34,6 +34,11 @@
     }];
     [self addBackButton];
     self.navigationItem.title = @"书籍详情";
+    [self setNeedsStatusBarAppearanceUpdate];
+}
+#pragma mark - 方法 Methods
+- (UIStatusBarStyle)preferredStatusBarStyle{
+    return UIStatusBarStyleLightContent;
 }
 #pragma mark - 懒加载 LazyLoad
 - (UIScrollView *)myScrollView{

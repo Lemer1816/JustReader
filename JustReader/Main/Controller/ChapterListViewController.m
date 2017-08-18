@@ -40,7 +40,7 @@
     [self addBackButton];
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:self.selectOrderBtn];
     self.navigationItem.title = @"章节列表";
-    
+    [self setNeedsStatusBarAppearanceUpdate];
     [self loadData];
 }
 #pragma mark - 方法 Methods
@@ -80,7 +80,9 @@
         NSLog(@"error: %@", error);
     }];
 }
-
+- (UIStatusBarStyle)preferredStatusBarStyle{
+    return UIStatusBarStyleLightContent;
+}
 #pragma mark - 协议方法 UITableViewDelegate/DataSource
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
     return 1;
