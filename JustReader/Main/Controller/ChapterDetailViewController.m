@@ -95,7 +95,7 @@ static NSInteger const kRightInset = 15;
     self.fontSize = 20;
     self.firstLoad = YES;
     self.chapterTitleLb.text = [self.chapterList objectAtIndex:self.selectedChapterIndex].title;
-    self.dk_manager.themeVersion = @"GREEN";
+    [[DKNightVersionManager sharedManager] dawnComing];
     
     
     [self getCurrentChapterDetail];
@@ -333,7 +333,7 @@ static NSInteger const kRightInset = 15;
         self.topView.y = self.topView.y == 0 ? -STATUS_AND_NAVIGATION_HEIGHT : 0;
     }];
     [UIView animateWithDuration:0.5 animations:^{
-        self.bottomView.y = self.bottomView.y == SCREEN_HEIGHT ? SCREEN_HEIGHT-100 : SCREEN_HEIGHT;
+        self.bottomView.y = self.bottomView.y == SCREEN_HEIGHT ? SCREEN_HEIGHT-self.bottomView.height : SCREEN_HEIGHT;
     }];
     self.queueScrollView.scrollEnabled = !self.queueScrollView.scrollEnabled;
 }
@@ -358,6 +358,100 @@ static NSInteger const kRightInset = 15;
 //    NSLog(@"结束刷新");
 //    [MBProgressHUD hideHUDForView:self.view animated:YES];
 }
+- (UIImage *) imageToTransparent:(UIImage*) image
+
+{
+    // 分配内存
+    
+    const int imageWidth = image.size.width;
+    
+    const int imageHeight = image.size.height;
+    
+    size_t bytesPerRow = imageWidth * 4;
+    
+    uint32_t* rgbImageBuf = (uint32_t*)malloc(bytesPerRow * imageHeight);
+    
+    
+    // 创建context
+    
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+    
+    CGContextRef context = CGBitmapContextCreate(rgbImageBuf, imageWidth, imageHeight, 8, bytesPerRow, colorSpace,
+                                                 
+                                                 kCGBitmapByteOrder32Little | kCGImageAlphaNoneSkipLast);
+    
+    CGContextDrawImage(context, CGRectMake(0, 0, imageWidth, imageHeight), image.CGImage);
+    
+    
+    
+    // 遍历像素
+    
+    int pixelNum = imageWidth * imageHeight;
+    
+    uint32_t* pCurPtr = rgbImageBuf;
+    
+    for (int i = 0; i < pixelNum; i++, pCurPtr++)
+        
+    {
+        
+                //去除白色...将0xFFFFFF00换成其它颜色也可以替换其他颜色。
+        
+                if ((*pCurPtr & 0xFFFFFF00) >= 0xffffff00) {
+        
+        
+        
+                    uint8_t* ptr = (uint8_t*)pCurPtr;
+        
+                    ptr[0] = 0;
+        
+                }
+        
+        //接近白色
+        
+        //将像素点转成子节数组来表示---第一个表示透明度即ARGB这种表示方式。ptr[0]:透明度,ptr[1]:R,ptr[2]:G,ptr[3]:B
+        
+        //分别取出RGB值后。进行判断需不需要设成透明。
+        
+//        uint8_t* ptr = (uint8_t*)pCurPtr;
+//        
+//        if (ptr[1] > 240 && ptr[2] > 240 && ptr[3] > 240) {
+//            
+//            //当RGB值都大于240则比较接近白色的都将透明度设为0.-----即接近白色的都设置为透明。某些白色背景具有杂质就会去不干净，用这个方法可以去干净
+//            
+//            ptr[0] = 0;
+//            
+//        }
+        
+    }
+    
+    // 将内存转成image
+    
+    CGDataProviderRef dataProvider =CGDataProviderCreateWithData(NULL, rgbImageBuf, bytesPerRow * imageHeight, nil);
+    
+    
+    
+    CGImageRef imageRef = CGImageCreate(imageWidth, imageHeight,8, 32, bytesPerRow, colorSpace,
+                                        
+                                        kCGImageAlphaLast |kCGBitmapByteOrder32Little, dataProvider,
+                                        
+                                        NULL, true,kCGRenderingIntentDefault);
+    
+    CGDataProviderRelease(dataProvider);
+    
+    UIImage* resultUIImage = [UIImage imageWithCGImage:imageRef];
+    
+    // 释放
+    
+    CGImageRelease(imageRef);
+    
+    CGContextRelease(context);
+    
+    CGColorSpaceRelease(colorSpace);
+    
+    return resultUIImage;
+    
+}
+
 #pragma mark - 协议方法 UIPageViewControllerDataSource/Delegate
 - (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerBeforeViewController:(UIViewController *)viewController{
     if ([self.currentChapterContentVCList containsObject:viewController]) {
@@ -773,47 +867,77 @@ static NSInteger const kRightInset = 15;
 }
 - (UIView *)bottomView{
     if (_bottomView == nil) {
-        _bottomView = [[UIView alloc] initWithFrame:CGRectMake(0, SCREEN_HEIGHT, SCREEN_WIDTH, 100)];
+        _bottomView = [[UIView alloc] initWithFrame:CGRectMake(0, SCREEN_HEIGHT, SCREEN_WIDTH, (SCREEN_WIDTH-15*5)/4+30)];
         [self.view addSubview:_bottomView];
-        _bottomView.dk_backgroundColorPicker = DKColorPickerWithKey(BG);
+//        _bottomView.dk_backgroundColorPicker = DKColorPickerWithKey(BAR);
+        _bottomView.backgroundColor = [UIColor whiteColor];
         //正常色
         UIButton *normalBGBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-        normalBGBtn.frame = CGRectMake(15, 30, (SCREEN_WIDTH-15*5)/4, 20);
+        normalBGBtn.frame = CGRectMake(15, 15, (SCREEN_WIDTH-15*5)/4, (SCREEN_WIDTH-15*5)/4);
         [_bottomView addSubview:normalBGBtn];
-        [normalBGBtn setTitle:@"正常色" forState:UIControlStateNormal];
-        normalBGBtn.titleLabel.font = [UIFont systemFontOfSize:15];
-        [normalBGBtn setTitleColor:TEXT_DARK_COLOR forState:UIControlStateNormal];
-        [normalBGBtn addControlClickBlock:^(UIControl *sender) {
-            [[DKNightVersionManager sharedManager] dawnComing];
-        } forControlEvents:UIControlEventTouchUpInside];
+        [normalBGBtn setImage:[UIImage imageNamed:@"theme_dawn_normal"] forState:UIControlStateNormal];
+        [normalBGBtn setImage:[UIImage imageNamed:@"theme_dawn_selected"] forState:UIControlStateSelected];
+        //去除系统设置的处于高亮状态的置灰效果
+        normalBGBtn.adjustsImageWhenHighlighted = NO;
+        normalBGBtn.selected = YES;
         //淡黄色
         UIButton *yellowBGBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-        yellowBGBtn.frame = CGRectMake(15*2+(SCREEN_WIDTH-15*5)/4, 30, (SCREEN_WIDTH-15*5)/4, 20);
+        yellowBGBtn.frame = CGRectMake(15*2+(SCREEN_WIDTH-15*5)/4, 15, (SCREEN_WIDTH-15*5)/4, (SCREEN_WIDTH-15*5)/4);
         [_bottomView addSubview:yellowBGBtn];
-        [yellowBGBtn setTitle:@"淡黄色" forState:UIControlStateNormal];
-        yellowBGBtn.titleLabel.font = [UIFont systemFontOfSize:15];
-        [yellowBGBtn setTitleColor:TEXT_DARK_COLOR forState:UIControlStateNormal];
-        [yellowBGBtn addControlClickBlock:^(UIControl *sender) {
-            [[DKNightVersionManager sharedManager] setThemeVersion:@"YELLOW"];
-        } forControlEvents:UIControlEventTouchUpInside];
+        [yellowBGBtn setImage:[UIImage imageNamed:@"theme_yellow_normal"] forState:UIControlStateNormal];
+        [yellowBGBtn setImage:[UIImage imageNamed:@"theme_yellow_selected"] forState:UIControlStateSelected];
+        //去除系统设置的处于高亮状态的置灰效果
+        yellowBGBtn.adjustsImageWhenHighlighted = NO;
+        
         //豆沙绿色
         UIButton *greenBGBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-        greenBGBtn.frame = CGRectMake(15*3+(SCREEN_WIDTH-15*5)/4*2, 30, (SCREEN_WIDTH-15*5)/4, 20);
+        greenBGBtn.frame = CGRectMake(15*3+(SCREEN_WIDTH-15*5)/4*2, 15, (SCREEN_WIDTH-15*5)/4, (SCREEN_WIDTH-15*5)/4);
         [_bottomView addSubview:greenBGBtn];
-        [greenBGBtn setTitle:@"豆沙绿色" forState:UIControlStateNormal];
-        greenBGBtn.titleLabel.font = [UIFont systemFontOfSize:15];
-        [greenBGBtn setTitleColor:TEXT_DARK_COLOR forState:UIControlStateNormal];
-        [greenBGBtn addControlClickBlock:^(UIControl *sender) {
-            [[DKNightVersionManager sharedManager] setThemeVersion:@"GREEN"];
-        } forControlEvents:UIControlEventTouchUpInside];
+        [greenBGBtn setImage:[UIImage imageNamed:@"theme_green_normal"] forState:UIControlStateNormal];
+        [greenBGBtn setImage:[UIImage imageNamed:@"theme_green_selected"] forState:UIControlStateSelected];
+        //去除系统设置的处于高亮状态的置灰效果
+        greenBGBtn.adjustsImageWhenHighlighted = NO;
+        
         //夜间色
         UIButton *darkBGBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-        darkBGBtn.frame = CGRectMake(15*4+(SCREEN_WIDTH-15*5)/4*3, 30, (SCREEN_WIDTH-15*5)/4, 20);
+        darkBGBtn.frame = CGRectMake(15*4+(SCREEN_WIDTH-15*5)/4*3, 15, (SCREEN_WIDTH-15*5)/4, (SCREEN_WIDTH-15*5)/4);
         [_bottomView addSubview:darkBGBtn];
-        [darkBGBtn setTitle:@"夜间色" forState:UIControlStateNormal];
-        darkBGBtn.titleLabel.font = [UIFont systemFontOfSize:15];
-        [darkBGBtn setTitleColor:TEXT_DARK_COLOR forState:UIControlStateNormal];
+        [darkBGBtn setImage:[UIImage imageNamed:@"theme_night_normal"] forState:UIControlStateNormal];
+        [darkBGBtn setImage:[UIImage imageNamed:@"theme_night_selected"] forState:UIControlStateSelected];
+        //去除系统设置的处于高亮状态的置灰效果
+        darkBGBtn.adjustsImageWhenHighlighted = NO;
+        
+        //正常色点击事件
+        [normalBGBtn addControlClickBlock:^(UIControl *sender) {
+            sender.selected = !sender.selected;
+            yellowBGBtn.selected = NO;
+            greenBGBtn.selected = NO;
+            darkBGBtn.selected = NO;
+            [[DKNightVersionManager sharedManager] dawnComing];
+        } forControlEvents:UIControlEventTouchUpInside];
+        //淡黄色点击事件
+        [yellowBGBtn addControlClickBlock:^(UIControl *sender) {
+            sender.selected = !sender.selected;
+            normalBGBtn.selected = NO;
+            greenBGBtn.selected = NO;
+            darkBGBtn.selected = NO;
+            [[DKNightVersionManager sharedManager]
+             setThemeVersion:@"YELLOW"];
+        } forControlEvents:UIControlEventTouchUpInside];
+        //豆沙绿色点击事件
+        [greenBGBtn addControlClickBlock:^(UIControl *sender) {
+            sender.selected = !sender.selected;
+            normalBGBtn.selected = NO;
+            yellowBGBtn.selected = NO;
+            darkBGBtn.selected = NO;
+            [[DKNightVersionManager sharedManager] setThemeVersion:@"GREEN"];
+        } forControlEvents:UIControlEventTouchUpInside];
+        //夜间色点击事件
         [darkBGBtn addControlClickBlock:^(UIControl *sender) {
+            sender.selected = !sender.selected;
+            normalBGBtn.selected = NO;
+            yellowBGBtn.selected = NO;
+            greenBGBtn.selected = NO;
             [[DKNightVersionManager sharedManager] nightFalling];
         } forControlEvents:UIControlEventTouchUpInside];
     }
