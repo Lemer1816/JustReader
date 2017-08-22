@@ -337,26 +337,31 @@ static NSInteger const kRightInset = 15;
     }];
     self.queueScrollView.scrollEnabled = !self.queueScrollView.scrollEnabled;
 }
-- (void)reloadChapterData{  
-//    NSLog(@"开始刷新");
-//    if (self.selectedChapterIndex == 0) {   //如果是第一章
-//        [self getNextChapterContentData];
-//        [self getNextChapterContentVCData];
-//    } else if (self.selectedChapterIndex == self.chapterList.count-1) {     //如果是最后一章
-//        [self getPreChapterContentData];
-//        [self getPreChapterContentVCData];
-//    } else {
-//        [self getPreChapterContentData];
-//        [self getPreChapterContentVCData];
-//        [self getNextChapterContentData];
-//        [self getNextChapterContentVCData];
-//    }
-//    [self getCurrentChapterContentData];
-//    [self getCurrentChapterContentVCData];
-//
-//    [self.pageVC.view setNeedsDisplay];
-//    NSLog(@"结束刷新");
-//    [MBProgressHUD hideHUDForView:self.view animated:YES];
+- (void)reloadChapterData{
+    [[NSOperationQueue new] addOperationWithBlock:^{
+        NSLog(@"开始刷新");
+        if (self.selectedChapterIndex == 0) {   //如果是第一章
+            [self getNextChapterContentData];
+            [self getNextChapterContentVCData];
+        } else if (self.selectedChapterIndex == self.chapterList.count-1) {     //如果是最后一章
+            [self getPreChapterContentData];
+            [self getPreChapterContentVCData];
+        } else {
+            [self getPreChapterContentData];
+            [self getPreChapterContentVCData];
+            [self getNextChapterContentData];
+            [self getNextChapterContentVCData];
+        }
+        [self getCurrentChapterContentData];
+        [self getCurrentChapterContentVCData];
+        
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            [self pageVC];
+            [self.view setNeedsDisplay];
+            NSLog(@"结束刷新");
+            [MBProgressHUD hideHUDForView:self.view animated:YES];
+        }];
+    }];
 }
 - (UIImage *) imageToTransparent:(UIImage*) image
 
@@ -681,6 +686,7 @@ static NSInteger const kRightInset = 15;
         return [self.nextChapterContentVCList objectAtIndex:index];
     }
 }
+
 #pragma mark - 懒加载 LazyLoad
 
 //Data
@@ -811,9 +817,10 @@ static NSInteger const kRightInset = 15;
         [self.view addSubview:_pageVC.view];
         _pageVC.dataSource = self;
         _pageVC.delegate = self;
+
         
-        [_pageVC setViewControllers:@[self.currentChapterContentVCList.firstObject] direction:UIPageViewControllerNavigationDirectionForward animated:YES completion:nil];
     }
+    [_pageVC setViewControllers:@[self.currentChapterContentVCList.firstObject] direction:UIPageViewControllerNavigationDirectionForward animated:YES completion:nil];
     return _pageVC;
 }
 - (UIScrollView *)queueScrollView{
@@ -867,7 +874,7 @@ static NSInteger const kRightInset = 15;
 }
 - (UIView *)bottomView{
     if (_bottomView == nil) {
-        _bottomView = [[UIView alloc] initWithFrame:CGRectMake(0, SCREEN_HEIGHT, SCREEN_WIDTH, (SCREEN_WIDTH-15*5)/4+30)];
+        _bottomView = [[UIView alloc] initWithFrame:CGRectMake(0, SCREEN_HEIGHT, SCREEN_WIDTH, (SCREEN_WIDTH-15*5)/4+15*3+30)];
         [self.view addSubview:_bottomView];
 //        _bottomView.dk_backgroundColorPicker = DKColorPickerWithKey(BAR);
         _bottomView.backgroundColor = [UIColor whiteColor];
@@ -940,8 +947,39 @@ static NSInteger const kRightInset = 15;
             greenBGBtn.selected = NO;
             [[DKNightVersionManager sharedManager] nightFalling];
         } forControlEvents:UIControlEventTouchUpInside];
+        
+        //放大字体
+        UIButton *increaseFontSizeBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        increaseFontSizeBtn.frame = CGRectMake(15, CGRectGetMaxY(normalBGBtn.frame)+15, (SCREEN_WIDTH-15*3)/2, 30);
+        [_bottomView addSubview:increaseFontSizeBtn];
+        [increaseFontSizeBtn setTitle:@"Aa+" forState:UIControlStateNormal];
+        [increaseFontSizeBtn setTitleColor:TEXT_MID_COLOR forState:UIControlStateNormal];
+        increaseFontSizeBtn.layer.borderColor = TEXT_MID_COLOR.CGColor;
+        increaseFontSizeBtn.layer.borderWidth = 1;
+        increaseFontSizeBtn.layer.cornerRadius = 5;
+        [increaseFontSizeBtn addControlClickBlock:^(UIControl *sender) {
+            NSLog(@"放大字体, %@", [NSThread currentThread]);
+//            [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+//            [self reloadChapterData];
+        } forControlEvents:UIControlEventTouchUpInside];
+        
+        //缩小字体
+        UIButton *decreaseFontSizeBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        decreaseFontSizeBtn.frame = CGRectMake(15*2+(SCREEN_WIDTH-15*3)/2, CGRectGetMaxY(normalBGBtn.frame)+15, (SCREEN_WIDTH-15*3)/2, 30);
+        [_bottomView addSubview:decreaseFontSizeBtn];
+        [decreaseFontSizeBtn setTitle:@"Aa-" forState:UIControlStateNormal];
+        [decreaseFontSizeBtn setTitleColor:TEXT_MID_COLOR forState:UIControlStateNormal];
+        decreaseFontSizeBtn.layer.borderColor = TEXT_MID_COLOR.CGColor;
+        decreaseFontSizeBtn.layer.borderWidth = 1;
+        decreaseFontSizeBtn.layer.cornerRadius = 5;
+        [decreaseFontSizeBtn addControlClickBlock:^(UIControl *sender) {
+            NSLog(@"缩小字体, %@", [NSThread currentThread]);
+            
+        } forControlEvents:UIControlEventTouchUpInside];
+        
+        
+        
     }
-    
     return _bottomView;
 }
 @end

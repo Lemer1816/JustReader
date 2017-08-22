@@ -20,6 +20,7 @@
     self.navigationBar.translucent = NO;
     //设置背景色
     self.navigationBar.barTintColor = NAVIGATION_BACKGROUNDCOLOR;
+//    self.navigationBar.dk_barTintColorPicker = DKColorPickerWithKey(BG);
     //设置标题文字的颜色和大小
     [self.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName: TEXT_WHITE_COLOR, NSFontAttributeName: [UIFont systemFontOfSize:17]}];
     //隐藏导航底部分割线
