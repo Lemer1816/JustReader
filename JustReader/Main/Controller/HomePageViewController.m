@@ -25,7 +25,7 @@
 #pragma mark - 生命周期 LifeCircle
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
+    self.view.backgroundColor = [UIColor whiteColor];
     NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
     NSString *displayName = [infoDict objectForKey:(NSString *)kCFBundleExecutableKey];
     [self.searchBtn setTitle:displayName forState:UIControlStateNormal];

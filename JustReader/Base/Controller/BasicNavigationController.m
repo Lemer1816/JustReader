@@ -9,7 +9,6 @@
 #import "BasicNavigationController.h"
 
 @interface BasicNavigationController ()
-
 @end
 
 @implementation BasicNavigationController

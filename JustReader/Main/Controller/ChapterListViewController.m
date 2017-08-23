@@ -8,6 +8,7 @@
 
 #import "ChapterListViewController.h"
 #import "ChapterDetailViewController.h"
+#import "ChooseBookSourceViewController.h"
 
 #import "ChapterListModel.h"
 #import "BookSourceModel.h"
@@ -29,8 +30,11 @@
 /** 列表 */
 @property (nonatomic, strong) UITableView *myTableView;
 /** 顺序/倒序按钮 */
-@property (nonatomic, strong) UIButton *selectOrderBtn;
-
+@property (nonatomic, readwrite, strong) UIBarButtonItem *selectOrderBtn;
+/** 选择书源按钮 */
+@property (nonatomic, readwrite, strong) UIBarButtonItem *chooseBookSourceBtn;
+/** 列表顺序状态 */
+@property (nonatomic, readwrite, assign, getter=isOrderState) BOOL orderState;
 @end
 
 @implementation ChapterListViewController
@@ -38,23 +42,25 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self addBackButton];
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:self.selectOrderBtn];
     self.navigationItem.title = @"章节列表";
-    [self setNeedsStatusBarAppearanceUpdate];
     [self loadData];
+    self.orderState = YES;
+    self.navigationItem.rightBarButtonItems = @[self.chooseBookSourceBtn, self.selectOrderBtn];
+    
 }
 #pragma mark - 方法 Methods
 - (void)loadData{
+    //获取书源列表
     [[Network sharedNetwork] getBookSourceListWithBookId:self.bookId successBlock:^(id responseBody) {
         if ([responseBody isKindOfClass:[NSArray class]]) {
             for (NSDictionary *dict in (NSArray *)responseBody) {
                 BookSourceModel *model = [BookSourceModel parse:dict];
-//                if ([model.name isEqualToString:@"优质书源"]) {
-//                    continue;
-//                }
+                if ([model.name isEqualToString:@"优质书源"]) {
+                    continue;
+                }
                 [self.bookSourceList addObject:model];
             }
-            self.selectedBookSourceModel = [self.bookSourceList objectAtIndex:1];
+            self.selectedBookSourceModel = [self.bookSourceList objectAtIndex:0];
             [self requestChapterList];
         }
     } failureBlock:^(NSError *error) {
@@ -83,6 +89,21 @@
 - (UIStatusBarStyle)preferredStatusBarStyle{
     return UIStatusBarStyleLightContent;
 }
+//选择书源
+- (void)chooseBookSource:sender{
+    ChooseBookSourceViewController *chooseVC = [[ChooseBookSourceViewController alloc] init];
+    chooseVC.bookSourceList = self.bookSourceList;
+    [chooseVC chooseSourceBlock:^(BookSourceModel *model) {
+        self.selectedBookSourceModel = model;
+        [self requestChapterList];
+    }];
+    //对于背景透明的视图,不设置会使背景呈现黑色
+    chooseVC.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    //界面显示方式(淡入)
+    chooseVC.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+    [self presentViewController:chooseVC animated:YES completion:nil];
+    
+}
 #pragma mark - 协议方法 UITableViewDelegate/DataSource
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
     return 1;
@@ -92,7 +113,7 @@
 }
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     ChapterListTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:NSStringFromClass([ChapterListTableViewCell class])];
-    ChapterListInfoModel *model = self.selectOrderBtn.selected ? [self.chapterDecreasedList objectAtIndex:indexPath.row] : [self.chapterIncreasedList objectAtIndex:indexPath.row];
+    ChapterListInfoModel *model = self.isOrderState ? [self.chapterIncreasedList objectAtIndex:indexPath.row] : [self.chapterDecreasedList objectAtIndex:indexPath.row];
     
     cell.chapterNameLb.text = model.title;
     return cell;
@@ -114,8 +135,8 @@
     NSInteger row = indexPath.row;
     ChapterDetailViewController *chapterDetailVC = [[ChapterDetailViewController alloc] init];
     chapterDetailVC.chapterList = self.chapterIncreasedList;
-    chapterDetailVC.selectedChapterIndex = self.selectOrderBtn.selected ? self.chapterDecreasedList.count-1-row : row;
-    chapterDetailVC.selectedChapterInfoModel = self.selectOrderBtn.selected ? [self.chapterDecreasedList objectAtIndex:row] : [self.chapterIncreasedList objectAtIndex:row];
+    chapterDetailVC.selectedChapterIndex = self.isOrderState ? row : self.chapterDecreasedList.count-1-row;
+    chapterDetailVC.selectedChapterInfoModel = self.isOrderState ? [self.chapterIncreasedList objectAtIndex:row] : [self.chapterDecreasedList objectAtIndex:row];
     
     [self.navigationController pushViewController:chapterDetailVC animated:YES];
 //    [self presentViewController:chapterDetailVC animated:YES completion:nil];
@@ -152,22 +173,36 @@
     }
     return _myTableView;
 }
-- (UIButton *)selectOrderBtn{
+- (UIBarButtonItem *)selectOrderBtn{
     if (_selectOrderBtn == nil) {
-        _selectOrderBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-        _selectOrderBtn.bounds = CGRectMake(0, 0, 50, 30);
-        [_selectOrderBtn setTitle:@"顺序" forState:UIControlStateNormal];
-        [_selectOrderBtn setTitle:@"倒序" forState:UIControlStateSelected];
-        [_selectOrderBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-        [_selectOrderBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateSelected];
-        
-        _selectOrderBtn.titleLabel.font = [UIFont systemFontOfSize:15];
+        UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
+        btn.bounds = CGRectMake(0, 0, 50, 30);
+        [btn setTitle:@"顺序" forState:UIControlStateNormal];
+        [btn setTitle:@"倒序" forState:UIControlStateSelected];
+        [btn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [btn setTitleColor:[UIColor whiteColor] forState:UIControlStateSelected];
+        btn.titleLabel.font = [UIFont systemFontOfSize:15];
         __block __weak __typeof(&*self)weakSelf = self;
-        [_selectOrderBtn addControlClickBlock:^(UIControl *sender) {
+        [btn addControlClickBlock:^(UIControl *sender) {
             sender.selected = !sender.selected;
+            weakSelf.orderState = !weakSelf.orderState;
             [weakSelf.myTableView reloadData];
         } forControlEvents:UIControlEventTouchUpInside];
+        _selectOrderBtn = [[UIBarButtonItem alloc] initWithCustomView:btn];
     }
     return _selectOrderBtn;
+}
+- (UIBarButtonItem *)chooseBookSourceBtn{
+    if (_chooseBookSourceBtn == nil) {
+        UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
+        btn.bounds = CGRectMake(0, 0, 80, 30);
+        [btn setTitle:@"选择书源" forState:UIControlStateNormal];
+        [btn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        btn.titleLabel.font = [UIFont systemFontOfSize:15];
+        [btn addTarget:self action:@selector(chooseBookSource:) forControlEvents:UIControlEventTouchUpInside];
+        _chooseBookSourceBtn = [[UIBarButtonItem alloc] initWithCustomView:btn];
+        
+    }
+    return _chooseBookSourceBtn;
 }
 @end

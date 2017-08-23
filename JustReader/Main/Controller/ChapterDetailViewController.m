@@ -99,7 +99,8 @@ static NSInteger const kRightInset = 15;
     
     
     [self getCurrentChapterDetail];
-    
+    [self topView];
+    [self bottomView];
 
 }
 - (void)viewWillAppear:(BOOL)animated{
@@ -132,8 +133,7 @@ static NSInteger const kRightInset = 15;
             self.chapterIndexLb.text = [NSString stringWithFormat:@"1 / %ld", self.currentChapterContentList.count];
             [self pageVC];
             [self queueScrollView];
-            [self topView];
-            [self bottomView];
+            
 //            NSLog(@"%@", NSStringFromCGRect(self.bottomView.frame));
         }
     } failureBlock:^(NSError *error) {
@@ -746,7 +746,7 @@ static NSInteger const kRightInset = 15;
 - (UILabel *)chapterTitleLb{
     if (_chapterTitleLb == nil) {
         _chapterTitleLb = [[UILabel alloc] init];
-        [self.view addSubview:_chapterTitleLb];
+        [self.view insertSubview:_chapterTitleLb belowSubview:self.topView];
         [_chapterTitleLb mas_makeConstraints:^(MASConstraintMaker *make) {
             make.top.equalTo(kLeftInset);
             make.left.equalTo(kLeftInset);
@@ -762,7 +762,7 @@ static NSInteger const kRightInset = 15;
 - (UILabel *)chapterIndexLb{
     if (_chapterIndexLb == nil) {
         _chapterIndexLb = [[UILabel alloc] init];
-        [self.view addSubview:_chapterIndexLb];
+        [self.view insertSubview:_chapterIndexLb belowSubview:self.bottomView];
         [_chapterIndexLb mas_makeConstraints:^(MASConstraintMaker *make) {
             make.bottom.equalTo(-kRightInset);
             make.left.equalTo(kLeftInset);
@@ -814,7 +814,7 @@ static NSInteger const kRightInset = 15;
     if (_pageVC == nil) {
         _pageVC = [[UIPageViewController alloc] initWithTransitionStyle:UIPageViewControllerTransitionStyleScroll navigationOrientation:UIPageViewControllerNavigationOrientationHorizontal options:nil];
         _pageVC.view.frame = CGRectMake(0, kTopInset, SCREEN_WIDTH, SCREEN_HEIGHT - kTopInset - kBottomInset);
-        [self.view addSubview:_pageVC.view];
+        [self.view insertSubview:_pageVC.view belowSubview:self.topView];
         _pageVC.dataSource = self;
         _pageVC.delegate = self;
 

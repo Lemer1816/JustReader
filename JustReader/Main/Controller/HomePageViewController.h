@@ -10,6 +10,6 @@
 #import "BasicViewController.h"
 
 
-@interface HomePageViewController : BasicViewController
+@interface HomePageViewController : UIViewController
 
 @end
