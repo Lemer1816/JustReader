@@ -248,6 +248,9 @@ static NSInteger const kRightInset = 15;
 
 //得到指定样式的文本数组
 - (NSMutableArray *)mutableArrayCreatedByContent:(NSMutableString *)content height:(CGFloat)height{
+    
+//    [content replaceOccurrencesOfString:@"\n" withString:@"\n   " options:NSCaseInsensitiveSearch range:NSMakeRange(0, content.length)];
+    
     NSMutableArray *contentList = [NSMutableArray array];
     //理想页码数(整除)
     NSInteger referPageNum = floor(height/kChapterBodyHeight);
@@ -265,6 +268,7 @@ static NSInteger const kRightInset = 15;
         NSRange range;
         //如果起始字符为换行符,则删去
         if ([[content substringFromIndex:location] hasPrefix:@"\n"]) {
+
             [content deleteCharactersInRange:NSMakeRange(location, 1)];
         }
         if ((location + realCharacterNumPerPage) < content.length) {
@@ -272,7 +276,10 @@ static NSInteger const kRightInset = 15;
             range = NSMakeRange(location, realCharacterNumPerPage);
             //            NSLog(@"%@", [chapterContent substringWithRange:range]);
 //            NSLog(@"%f", kChapterBodyHeight);
+            
+            //实际每页高度(浮动,可能比目标高度高,也可能低,也可能正好)
             characterHeightPerPage = [NSString heightWithContent:[content substringWithRange:range] font:[UIFont systemFontOfSize:self.fontSize] width:kChapterBodyWidth hasFirstLineHeadIndent:self.hasFirstLineHeadIndent];
+            
             if (characterHeightPerPage < kChapterBodyHeight) {
                 while (characterHeightPerPage < kChapterBodyHeight) {
                     realCharacterNumPerPage++;

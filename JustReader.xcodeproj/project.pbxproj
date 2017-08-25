@@ -10,7 +10,6 @@
 		32E6ABF2FE224C64CD320939 /* libPods-JustReader.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F2F3D5A494C2FF233EB04C58 /* libPods-JustReader.a */; };
 		8C0A6E851F00934E005DC5B0 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C0A6E841F00934E005DC5B0 /* main.m */; };
 		8C0A6E881F00934E005DC5B0 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C0A6E871F00934E005DC5B0 /* AppDelegate.m */; };
-		8C0A6E8B1F00934E005DC5B0 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C0A6E8A1F00934E005DC5B0 /* ViewController.m */; };
 		8C0A6E8E1F00934E005DC5B0 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8C0A6E8C1F00934E005DC5B0 /* Main.storyboard */; };
 		8C0A6E901F00934E005DC5B0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8C0A6E8F1F00934E005DC5B0 /* Assets.xcassets */; };
 		8C0A6E931F00934E005DC5B0 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8C0A6E911F00934E005DC5B0 /* LaunchScreen.storyboard */; };
@@ -53,8 +52,6 @@
 		8C0A6E841F00934E005DC5B0 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		8C0A6E861F00934E005DC5B0 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		8C0A6E871F00934E005DC5B0 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		8C0A6E891F00934E005DC5B0 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		8C0A6E8A1F00934E005DC5B0 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		8C0A6E8D1F00934E005DC5B0 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		8C0A6E8F1F00934E005DC5B0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = ../Assets.xcassets; sourceTree = "<group>"; };
 		8C0A6E921F00934E005DC5B0 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -182,8 +179,6 @@
 		8C0A6E821F00934E005DC5B0 /* JustReader */ = {
 			isa = PBXGroup;
 			children = (
-				8C0A6E891F00934E005DC5B0 /* ViewController.h */,
-				8C0A6E8A1F00934E005DC5B0 /* ViewController.m */,
 				8C0A6E9A1F0094E2005DC5B0 /* Macro */,
 				8C0A6E9B1F0094E2005DC5B0 /* Tool */,
 				8C0A6E9C1F0094E2005DC5B0 /* Category */,
@@ -556,7 +551,6 @@
 				8C0A6EB11F009DC9005DC5B0 /* UIControl+Event.m in Sources */,
 				8CC5169B1F2582A700B61E2E /* ChapterDetailViewController.m in Sources */,
 				8C9BC6C41F20435700C9E071 /* HomePageViewController.m in Sources */,
-				8C0A6E8B1F00934E005DC5B0 /* ViewController.m in Sources */,
 				8C9BC6DA1F20817D00C9E071 /* BookDetailViewController.m in Sources */,
 				8CB4D2181F1F47CF006ACCDF /* ChapterListModel.m in Sources */,
 				8C0A6EBA1F009E72005DC5B0 /* NSObject+MJExtension.m in Sources */,

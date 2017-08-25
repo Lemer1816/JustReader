@@ -46,12 +46,6 @@
     CFStringTransform((CFMutableStringRef)convertedString, NULL, kCFStringTransformFullwidthHalfwidth, false);
     return [convertedString copy];
 }
-
-
-
-
-
-
 + (CGFloat)heightWithContent:(NSString *)content font:(UIFont *)font width:(CGFloat)width hasFirstLineHeadIndent:(BOOL)hasFirstLineHeadIndent{
     
     NSDictionary *dic = [NSString attributesDictionaryWithContent:content font:font width:width hasFirstLineHeadIndent:hasFirstLineHeadIndent];
